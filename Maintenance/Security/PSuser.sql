@@ -1,0 +1,2 @@
+﻿CREATE USER [PSuser] FOR LOGIN [PSuser];
+

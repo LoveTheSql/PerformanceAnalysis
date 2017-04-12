@@ -1,0 +1,7 @@
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\bin\Debug\ServerAnalysis.dacpac
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\obj\Debug\Model.xml
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\obj\Debug\refactor.xml
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\obj\Debug\postdeploy.sql
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\obj\Debug\predeploy.sql
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\obj\Debug\ServerAnalysis.dll
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\obj\Debug\ServerAnalysis.pdb

@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>6CAFC0C6-A428-4d30-A9F9-700E829FEA51</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MyApplication</RootNamespace>
+    <AssemblyName>MyApplication</AssemblyName>
+    <Name>PerformanceAnalysis</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="ServerAnalysisDW_KeySetup.sql" />
+    <Content Include="Sql Agent Jobs\Agent_Job_Failures_Get.sql" />
+    <Content Include="Sql Agent Jobs\Analysis_Disk_Space_Alert.sql" />
+    <Content Include="Sql Agent Jobs\Analysis_Instance_Memory_Get.sql" />
+    <Content Include="Sql Agent Jobs\Analysis_Query_Capture.sql" />
+    <Content Include="Sql Agent Jobs\Analysis_Query_Clean.sql" />
+    <Content Include="Sql Agent Jobs\Send_Email_ETL_Error.sql" />
+    <Content Include="Sql Agent Jobs\Server_Analysis_PerfMon_Check.sql" />
+    <Content Include="Sql Agent Jobs\SSIS_Analysis_Extract_10_min.sql" />
+    <Content Include="Sql Agent Jobs\SSIS_Analysis_Extract_Daily.sql" />
+    <Content Include="Sql Agent Jobs\SSIS_Extract_LookUp.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Get-DbUsage.ps1" />
+    <Compile Include="Get-PerformanceBaseline.ps1" />
+    <Compile Include="GetDiskUsage.ps1" />
+    <Compile Include="ScheduleTasks.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sql Agent Jobs\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Target Name="Build" />
+</Project>

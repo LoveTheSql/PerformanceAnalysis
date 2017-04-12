@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>Maintenance</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{44159865-662a-4a5e-949a-5e3119a941d0}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>Maintenance</RootNamespace>
+    <AssemblyName>Maintenance</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="Security\" />
+    <Folder Include="dbo\Functions\" />
+    <Folder Include="dbo\Stored Procedures\" />
+    <Folder Include="Analysis\" />
+    <Folder Include="Analysis\Stored Procedures\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\Databases.sql" />
+    <Build Include="dbo\Tables\CommandLog.sql" />
+    <Build Include="dbo\Tables\JobCounter.sql" />
+    <Build Include="dbo\Tables\JobHistory.sql" />
+    <Build Include="dbo\Tables\CountType.sql" />
+    <Build Include="dbo\Tables\DatabaseCheckDBStatus.sql" />
+    <Build Include="dbo\Tables\DimAudit.sql" />
+    <Build Include="dbo\Tables\Logins.sql" />
+    <Build Include="dbo\Tables\DatabaseCheckDB.sql" />
+    <Build Include="dbo\Tables\DataArchiveSpecs.sql" />
+    <Build Include="dbo\Tables\DimDate.sql" />
+    <Build Include="dbo\Tables\RoutineList.sql" />
+    <Build Include="dbo\Tables\Servers.sql" />
+    <Build Include="dbo\Tables\FileLists.sql" />
+    <Build Include="Security\SSRSuser.sql" />
+    <Build Include="Security\SSRSuser_1.sql" />
+    <Build Include="Security\SSISuser.sql" />
+    <Build Include="Security\SSISuser_1.sql" />
+    <Build Include="Security\PSuser.sql" />
+    <Build Include="Security\PSuser_1.sql" />
+    <Build Include="Security\RoleMemberships.sql" />
+    <Build Include="dbo\Functions\fnGetTableFromCSV.sql" />
+    <Build Include="dbo\Stored Procedures\DBBackupSplit.sql" />
+    <Build Include="dbo\Stored Procedures\DBRestoreSplit.sql" />
+    <Build Include="dbo\Stored Procedures\NightlyRestoreVerification.sql" />
+    <Build Include="dbo\Stored Procedures\CommandExecute.sql" />
+    <Build Include="dbo\Stored Procedures\DatabaseBackup.sql" />
+    <Build Include="dbo\Stored Procedures\DatabaseIntegrityCheck.sql" />
+    <Build Include="dbo\Stored Procedures\IndexOptimize.sql" />
+    <Build Include="dbo\Stored Procedures\CommandLogGet.sql" />
+    <Build Include="dbo\Stored Procedures\JobCountsGet.sql" />
+    <Build Include="dbo\Stored Procedures\JobSave.sql" />
+    <Build Include="dbo\Stored Procedures\DBCount.sql" />
+    <Build Include="dbo\Stored Procedures\sp_dba_RemoveUser.sql" />
+    <Build Include="Analysis\Stored Procedures\QueryElapsedTimeRecord.sql" />
+    <Build Include="dbo\Stored Procedures\DBCount_IDENTITY.sql" />
+    <Build Include="dbo\Stored Procedures\DBCount_MAXID.sql" />
+    <Build Include="dbo\Stored Procedures\DBCount_ROWCOUNT.sql" />
+    <Build Include="dbo\Stored Procedures\IndexAdvantageSuggestions.sql" />
+    <Build Include="dbo\Stored Procedures\NightlyRestore.sql" />
+    <Build Include="dbo\Stored Procedures\SSRS_UpdateSubscriptioinOwner.sql" />
+    <Build Include="dbo\Stored Procedures\ServerUpTime.sql" />
+    <Build Include="dbo\Stored Procedures\spFileDetails.sql" />
+    <Build Include="dbo\Stored Procedures\sp_CreateSelectScriptOfTable.sql" />
+    <Build Include="dbo\Stored Procedures\DatabaseBackupFileCheck.sql" />
+    <Build Include="Security\Analysis.sql" />
+  </ItemGroup>
+</Project>

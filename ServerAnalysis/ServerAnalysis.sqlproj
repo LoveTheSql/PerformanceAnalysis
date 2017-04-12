@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>ServerAnalysis</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{1b2e5042-c5c5-4f4e-9f7d-e6fb05e4a1b5}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql110DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>ServerAnalysis</RootNamespace>
+    <AssemblyName>ServerAnalysis</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="Analysis" />
+    <Folder Include="Analysis\Functions" />
+    <Folder Include="Analysis\Stored Procedures" />
+    <Folder Include="Analysis\Tables" />
+    <Folder Include="Security" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Analysis\Functions\NegToZero.sql" />
+    <Build Include="Analysis\Stored Procedures\DiskMemoryStatsGet.sql" />
+    <Build Include="Analysis\Stored Procedures\insDatabaseUsage.sql" />
+    <Build Include="Analysis\Stored Procedures\insDiskUsage.sql" />
+    <Build Include="Analysis\Stored Procedures\insInstanceStats.sql" />
+    <Build Include="Analysis\Stored Procedures\insServerStats.sql" />
+    <Build Include="Analysis\Stored Procedures\InstanceMemoryGet.sql" />
+    <Build Include="Analysis\Stored Procedures\QueryElapsedTimeClean.sql" />
+    <Build Include="Analysis\Stored Procedures\QueryElapsedTimeGet.sql" />
+    <Build Include="Analysis\Stored Procedures\QueryElapsedTimeRecord.sql" />
+    <Build Include="Analysis\Stored Procedures\selComparativeAnalysisReport.sql" />
+    <Build Include="Analysis\Stored Procedures\selPerformanceAnalysisReport.sql" />
+    <Build Include="Analysis\Stored Procedures\selServer.sql" />
+    <Build Include="Analysis\Tables\DatabaseUsage.sql" />
+    <Build Include="Analysis\Tables\DiskMemoryStats.sql" />
+    <Build Include="Analysis\Tables\DiskUsage.sql" />
+    <Build Include="Analysis\Tables\InstanceMemory.sql" />
+    <Build Include="Analysis\Tables\InstanceStats.sql" />
+    <Build Include="Analysis\Tables\QueryElapsedTime.sql" />
+    <Build Include="Analysis\Tables\Server.sql" />
+    <Build Include="Analysis\Tables\ServerStats.sql" />
+    <Build Include="Security\Analysis.sql" />
+    <Build Include="Security\PSuser.sql" />
+    <Build Include="Security\PSuser_1.sql" />
+    <Build Include="Security\RoleMemberships.sql" />
+    <Build Include="Security\SSISuser.sql" />
+    <Build Include="Security\SSISuser_1.sql" />
+    <Build Include="Security\SSRSuser.sql" />
+    <Build Include="Security\SSRSuser_1.sql" />
+    <Build Include="Analysis\Stored Procedures\Alert_DiskSpace.sql" />
+  </ItemGroup>
+</Project>

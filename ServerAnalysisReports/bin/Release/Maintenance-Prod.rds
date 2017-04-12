@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RptDataSource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Maintenance-Prod">
+  <ConnectionProperties>
+    <Extension>SQL</Extension>
+    <ConnectString>Data Source=SSRS2016;Initial Catalog=Maintenance</ConnectString>
+  </ConnectionProperties>
+  <DataSourceID>a411d824-51c0-4b88-829e-b010e859fbd2</DataSourceID>
+</RptDataSource>

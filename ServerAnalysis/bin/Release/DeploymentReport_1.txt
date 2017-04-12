@@ -1,0 +1,49 @@
+﻿** Highlights
+     Tables that will be rebuilt
+       None
+     Clustered indexes that will be dropped
+       None
+     Clustered indexes that will be created
+       None
+     Possible data issues
+       None
+
+** User actions
+     Create
+       [PSuser] (User)
+       [SSISuser] (User)
+       [SSRSuser] (User)
+       [Analysis] (Schema)
+       [Analysis].[ServerStats] (Table)
+       [Analysis].[ServerStats].[IX_ServerStats_PerfDate] (Index)
+       [Analysis].[Server] (Table)
+       [Analysis].[QueryElapsedTime] (Table)
+       [Analysis].[QueryElapsedTime].[IX_Analysis_QueryElapsedTime_DateTimeKeys] (Index)
+       [Analysis].[InstanceStats] (Table)
+       [Analysis].[InstanceStats].[AK_ServerStats] (Index)
+       [Analysis].[InstanceMemory] (Table)
+       [Analysis].[DiskUsage] (Table)
+       [Analysis].[DiskMemoryStats] (Table)
+       [Analysis].[DatabaseUsage] (Table)
+       [Analysis].[FX_InstanceStats] (Foreign Key)
+       [Analysis].[NegToZero] (Function)
+       [Analysis].[selServer] (Procedure)
+       [Analysis].[selPerformanceAnalysisReport] (Procedure)
+       [Analysis].[selComparativeAnalysisReport] (Procedure)
+       [Analysis].[QueryElapsedTimeRecord] (Procedure)
+       [Analysis].[QueryElapsedTimeGet] (Procedure)
+       [Analysis].[QueryElapsedTimeClean] (Procedure)
+       [Analysis].[InstanceMemoryGet] (Procedure)
+       [Analysis].[insServerStats] (Procedure)
+       [Analysis].[insInstanceStats] (Procedure)
+       [Analysis].[insDiskUsage] (Procedure)
+       [Analysis].[insDatabaseUsage] (Procedure)
+       [Analysis].[DiskMemoryStatsGet] (Procedure)
+       [Analysis].[Alert_DiskSpace] (Procedure)
+
+** Supporting actions
+
+The object [PSuser] already exists in database with a different definition and will not be altered.
+The object [SSISuser] already exists in database with a different definition and will not be altered.
+The object [SSRSuser] already exists in database with a different definition and will not be altered.
+

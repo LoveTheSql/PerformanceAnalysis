@@ -1,0 +1,83 @@
+1/24/2017 10:29:52 PM	This log contains information about the import schema operation into project 'ServerAnalysisDW' on computer 'GOBI' by user 'Dave'.
+1/24/2017 10:29:52 PM	Import of database schema has started.
+1/24/2017 10:30:09 PM	Gathering database options
+1/24/2017 10:30:09 PM	Gathering users
+1/24/2017 10:30:09 PM	Gathering roles
+1/24/2017 10:30:09 PM	Gathering application roles
+1/24/2017 10:30:09 PM	Gathering role memberships
+1/24/2017 10:30:09 PM	Gathering filegroups
+1/24/2017 10:30:09 PM	Gathering full-text catalogs
+1/24/2017 10:30:09 PM	Gathering assemblies
+1/24/2017 10:30:09 PM	Gathering certificates
+1/24/2017 10:30:09 PM	Gathering asymmetric keys
+1/24/2017 10:30:09 PM	Gathering symmetric keys
+1/24/2017 10:30:09 PM	Gathering encrypted symmetric keys
+1/24/2017 10:30:09 PM	Gathering schemas
+1/24/2017 10:30:09 PM	Gathering XML schema collections
+1/24/2017 10:30:09 PM	Gathering user-defined data types
+1/24/2017 10:30:09 PM	Gathering user-defined types
+1/24/2017 10:30:09 PM	Gathering table types
+1/24/2017 10:30:09 PM	Gathering unique keys for table types
+1/24/2017 10:30:09 PM	Gathering primary keys for table types
+1/24/2017 10:30:09 PM	Gathering indexes for table types
+1/24/2017 10:30:09 PM	Gathering check constraints for table types
+1/24/2017 10:30:09 PM	Gathering default constraints for table types
+1/24/2017 10:30:09 PM	Gathering partition functions
+1/24/2017 10:30:09 PM	Gathering partition schemes
+1/24/2017 10:30:09 PM	Gathering functions
+1/24/2017 10:30:09 PM	Gathering encrypted functions
+1/24/2017 10:30:09 PM	Gathering aggregates
+1/24/2017 10:30:09 PM	Gathering procedures
+1/24/2017 10:30:09 PM	Gathering encrypted procedures
+1/24/2017 10:30:09 PM	Gathering tables
+1/24/2017 10:30:09 PM	Gathering primary keys
+1/24/2017 10:30:09 PM	Gathering unique constraints
+1/24/2017 10:30:09 PM	Gathering foreign keys
+1/24/2017 10:30:09 PM	Gathering default constraints
+1/24/2017 10:30:09 PM	Gathering check constraints
+1/24/2017 10:30:09 PM	Gathering views
+1/24/2017 10:30:09 PM	Gathering encrypted views
+1/24/2017 10:30:09 PM	Gathering indexes
+1/24/2017 10:30:09 PM	Gathering statistics
+1/24/2017 10:30:09 PM	Gathering full-text index stoplists
+1/24/2017 10:30:09 PM	Gathering search property lists
+1/24/2017 10:30:09 PM	Gathering search properties
+1/24/2017 10:30:09 PM	Gathering full-text indexes
+1/24/2017 10:30:09 PM	Gathering column store indexes
+1/24/2017 10:30:09 PM	Gathering spatial indexes
+1/24/2017 10:30:09 PM	Gathering XML indexes
+1/24/2017 10:30:09 PM	Gathering Selective XML indexes
+1/24/2017 10:30:09 PM	Gathering encrypted triggers
+1/24/2017 10:30:09 PM	Gathering triggers
+1/24/2017 10:30:09 PM	Gathering encrypted and clr ddl triggers
+1/24/2017 10:30:09 PM	Gathering ddl triggers
+1/24/2017 10:30:09 PM	Gathering synonyms
+1/24/2017 10:30:09 PM	Gathering defaults
+1/24/2017 10:30:09 PM	Gathering data constraint uddt bindings
+1/24/2017 10:30:09 PM	Gathering rules
+1/24/2017 10:30:09 PM	Gathering data constraint uddt bindings
+1/24/2017 10:30:09 PM	Gathering message types
+1/24/2017 10:30:09 PM	Gathering queues
+1/24/2017 10:30:09 PM	Gathering contracts
+1/24/2017 10:30:09 PM	Gathering services
+1/24/2017 10:30:09 PM	Gathering event notifications
+1/24/2017 10:30:09 PM	Gathering remote service bindings
+1/24/2017 10:30:09 PM	Gathering broker priorities
+1/24/2017 10:30:09 PM	Gathering signatures
+1/24/2017 10:30:09 PM	Gathering data compression options
+1/24/2017 10:30:09 PM	Gathering sequence types
+1/24/2017 10:30:09 PM	Gathering security policies
+1/24/2017 10:30:09 PM	Gather column encryption keys
+1/24/2017 10:30:09 PM	Gathering column master keys
+1/24/2017 10:30:09 PM	Gathering external data sources
+1/24/2017 10:30:09 PM	Gathering external file formats
+1/24/2017 10:30:09 PM	Gathering external tables
+1/24/2017 10:30:09 PM	Gathering extended properties
+1/24/2017 10:30:09 PM	Gathering credentials
+1/24/2017 10:30:09 PM	Gathering logins
+1/24/2017 10:30:09 PM	Gathering server audits
+1/24/2017 10:30:10 PM	Scanning project for duplicate elements
+1/24/2017 10:30:10 PM	Finished duplicate element processing
+1/24/2017 10:30:14 PM	Finished importing database.
+1/24/2017 10:30:14 PM	A summary of the import was saved to the following location: M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysisDW\Import Schema Logs\ServerAnalysisDW_20170125032952.log
+1/24/2017 10:30:14 PM	Click Finish to continue...

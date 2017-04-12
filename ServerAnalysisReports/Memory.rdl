@@ -1,0 +1,373 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="ServerAnalysisDW">
+      <DataSourceReference>ServerAnalysisDW</DataSourceReference>
+      <rd:SecurityType>None</rd:SecurityType>
+      <rd:DataSourceID>3fe8e1d0-ca89-4d86-a0c6-85a1201a66a7</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="InstanceListGet">
+      <SharedDataSet>
+        <SharedDataSetReference>InstanceListGet</SharedDataSetReference>
+      </SharedDataSet>
+      <Fields>
+        <Field Name="ServerNm">
+          <DataField>ServerNm</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="connString">
+          <DataField>connString</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Subreport Name="PageLifeExpectancy">
+            <ReportName>subMemoryPageLifeExpectancy</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>0.375in</Top>
+            <Left>0.02778in</Left>
+            <Height>1.59167in</Height>
+            <Width>6.5in</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Subreport Name="OsMemoryUtilization">
+            <ReportName>subMemoryOsMemoryUtilization</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>0.375in</Top>
+            <Left>6.65625in</Left>
+            <Height>1.59167in</Height>
+            <Width>6.5in</Width>
+            <ZIndex>1</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Subreport Name="PlanCacheSize">
+            <ReportName>subMemoryPlanCacheSize</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>2.03611in</Top>
+            <Left>0.02778in</Left>
+            <Height>1.59167in</Height>
+            <Width>6.5in</Width>
+            <ZIndex>2</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Subreport Name="BufferCacheSize">
+            <ReportName>subMemoryBufferCacheSize</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>2.03611in</Top>
+            <Left>6.65625in</Left>
+            <Height>1.59167in</Height>
+            <Width>6.5in</Width>
+            <ZIndex>3</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Subreport Name="ProcedureCachRatio">
+            <ReportName>subMemoryProcedureCacheRatio</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>3.71424in</Top>
+            <Left>0.02778in</Left>
+            <Height>1.59167in</Height>
+            <Width>6.5in</Width>
+            <ZIndex>4</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Subreport Name="BufferCacheHitRatio">
+            <ReportName>subMemoryBufferCacheRatio</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>3.71424in</Top>
+            <Left>6.65625in</Left>
+            <Height>1.59167in</Height>
+            <Width>6.5in</Width>
+            <ZIndex>5</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Subreport Name="LogFlushesSec">
+            <ReportName>subMemoryLogFlushes</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>5.37535in</Top>
+            <Left>0.02778in</Left>
+            <Height>1.59167in</Height>
+            <Width>6.5in</Width>
+            <ZIndex>6</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Subreport Name="SqlCompilations">
+            <ReportName>subMemorySqlCompilations</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>5.37535in</Top>
+            <Left>6.65625in</Left>
+            <Height>1.59167in</Height>
+            <Width>6.5in</Width>
+            <ZIndex>7</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Subreport Name="LogBytesFlushed">
+            <ReportName>subMemoryLogBytesFlushed</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>7.05347in</Top>
+            <Left>0.02778in</Left>
+            <Height>1.59167in</Height>
+            <Width>6.5in</Width>
+            <ZIndex>8</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Subreport Name="SqlReCompilations">
+            <ReportName>subMemorySqlReCompilations</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>7.05347in</Top>
+            <Left>6.65625in</Left>
+            <Height>1.59167in</Height>
+            <Width>6.5in</Width>
+            <ZIndex>9</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Textbox Name="Textbox1">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>Memory Report</Value>
+                    <Style>
+                      <FontSize>20pt</FontSize>
+                      <FontWeight>Bold</FontWeight>
+                      <Color>Purple</Color>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox1</rd:DefaultName>
+            <Height>0.41667in</Height>
+            <Width>4.84375in</Width>
+            <ZIndex>10</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <Height>9.02014in</Height>
+        <Style />
+      </Body>
+      <Width>13.30833in</Width>
+      <Page>
+        <LeftMargin>1in</LeftMargin>
+        <RightMargin>1in</RightMargin>
+        <TopMargin>1in</TopMargin>
+        <BottomMargin>1in</BottomMargin>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="ServerName">
+      <DataType>String</DataType>
+      <Prompt>Server Name</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>InstanceListGet</DataSetName>
+          <ValueField>ServerNm</ValueField>
+          <LabelField>ServerNm</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="EndDate">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=Now</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EndDate</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="MinutesBack">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>60</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Minutes Back</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <ReportParametersLayout>
+    <GridLayoutDefinition>
+      <NumberOfColumns>2</NumberOfColumns>
+      <NumberOfRows>2</NumberOfRows>
+      <CellDefinitions>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>ServerName</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>EndDate</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>1</RowIndex>
+          <ParameterName>MinutesBack</ParameterName>
+        </CellDefinition>
+      </CellDefinitions>
+    </GridLayoutDefinition>
+  </ReportParametersLayout>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportID>6bab1304-d34e-47a3-9f64-e940a41be90e</rd:ReportID>
+</Report>

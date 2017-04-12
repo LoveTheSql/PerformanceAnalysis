@@ -1,0 +1,5 @@
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\bin\Release\ServerAnalysis.dacpac
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\obj\Release\ServerAnalysis.dll
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\obj\Release\ServerAnalysis.pdb
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\bin\Release\ServerAnalysis.dll
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\bin\Release\ServerAnalysis.pdb

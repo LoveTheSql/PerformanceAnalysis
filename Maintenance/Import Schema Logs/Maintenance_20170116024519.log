@@ -1,0 +1,83 @@
+1/15/2017 9:45:19 PM	This log contains information about the import schema operation into project 'Maintenance' on computer 'GOBI' by user 'Dave'.
+1/15/2017 9:45:19 PM	Import of database schema has started.
+1/15/2017 9:45:35 PM	Gathering database options
+1/15/2017 9:45:35 PM	Gathering users
+1/15/2017 9:45:35 PM	Gathering roles
+1/15/2017 9:45:35 PM	Gathering application roles
+1/15/2017 9:45:35 PM	Gathering role memberships
+1/15/2017 9:45:35 PM	Gathering filegroups
+1/15/2017 9:45:35 PM	Gathering full-text catalogs
+1/15/2017 9:45:35 PM	Gathering assemblies
+1/15/2017 9:45:35 PM	Gathering certificates
+1/15/2017 9:45:35 PM	Gathering asymmetric keys
+1/15/2017 9:45:35 PM	Gathering symmetric keys
+1/15/2017 9:45:35 PM	Gathering encrypted symmetric keys
+1/15/2017 9:45:35 PM	Gathering schemas
+1/15/2017 9:45:35 PM	Gathering XML schema collections
+1/15/2017 9:45:35 PM	Gathering user-defined data types
+1/15/2017 9:45:35 PM	Gathering user-defined types
+1/15/2017 9:45:35 PM	Gathering table types
+1/15/2017 9:45:35 PM	Gathering unique keys for table types
+1/15/2017 9:45:35 PM	Gathering primary keys for table types
+1/15/2017 9:45:35 PM	Gathering indexes for table types
+1/15/2017 9:45:35 PM	Gathering check constraints for table types
+1/15/2017 9:45:35 PM	Gathering default constraints for table types
+1/15/2017 9:45:35 PM	Gathering partition functions
+1/15/2017 9:45:36 PM	Gathering partition schemes
+1/15/2017 9:45:36 PM	Gathering functions
+1/15/2017 9:45:36 PM	Gathering encrypted functions
+1/15/2017 9:45:36 PM	Gathering aggregates
+1/15/2017 9:45:36 PM	Gathering procedures
+1/15/2017 9:45:36 PM	Gathering encrypted procedures
+1/15/2017 9:45:36 PM	Gathering tables
+1/15/2017 9:45:36 PM	Gathering primary keys
+1/15/2017 9:45:36 PM	Gathering unique constraints
+1/15/2017 9:45:36 PM	Gathering foreign keys
+1/15/2017 9:45:36 PM	Gathering default constraints
+1/15/2017 9:45:36 PM	Gathering check constraints
+1/15/2017 9:45:36 PM	Gathering views
+1/15/2017 9:45:36 PM	Gathering encrypted views
+1/15/2017 9:45:36 PM	Gathering indexes
+1/15/2017 9:45:36 PM	Gathering statistics
+1/15/2017 9:45:36 PM	Gathering full-text index stoplists
+1/15/2017 9:45:36 PM	Gathering search property lists
+1/15/2017 9:45:36 PM	Gathering search properties
+1/15/2017 9:45:36 PM	Gathering full-text indexes
+1/15/2017 9:45:36 PM	Gathering column store indexes
+1/15/2017 9:45:36 PM	Gathering spatial indexes
+1/15/2017 9:45:36 PM	Gathering XML indexes
+1/15/2017 9:45:36 PM	Gathering Selective XML indexes
+1/15/2017 9:45:36 PM	Gathering encrypted triggers
+1/15/2017 9:45:36 PM	Gathering triggers
+1/15/2017 9:45:36 PM	Gathering encrypted and clr ddl triggers
+1/15/2017 9:45:36 PM	Gathering ddl triggers
+1/15/2017 9:45:36 PM	Gathering synonyms
+1/15/2017 9:45:36 PM	Gathering defaults
+1/15/2017 9:45:36 PM	Gathering data constraint uddt bindings
+1/15/2017 9:45:36 PM	Gathering rules
+1/15/2017 9:45:36 PM	Gathering data constraint uddt bindings
+1/15/2017 9:45:36 PM	Gathering message types
+1/15/2017 9:45:36 PM	Gathering queues
+1/15/2017 9:45:36 PM	Gathering contracts
+1/15/2017 9:45:36 PM	Gathering services
+1/15/2017 9:45:36 PM	Gathering event notifications
+1/15/2017 9:45:36 PM	Gathering remote service bindings
+1/15/2017 9:45:36 PM	Gathering broker priorities
+1/15/2017 9:45:36 PM	Gathering signatures
+1/15/2017 9:45:36 PM	Gathering data compression options
+1/15/2017 9:45:36 PM	Gathering sequence types
+1/15/2017 9:45:36 PM	Gathering security policies
+1/15/2017 9:45:36 PM	Gather column encryption keys
+1/15/2017 9:45:36 PM	Gathering column master keys
+1/15/2017 9:45:36 PM	Gathering external data sources
+1/15/2017 9:45:36 PM	Gathering external file formats
+1/15/2017 9:45:36 PM	Gathering external tables
+1/15/2017 9:45:36 PM	Gathering extended properties
+1/15/2017 9:45:36 PM	Gathering credentials
+1/15/2017 9:45:36 PM	Gathering logins
+1/15/2017 9:45:36 PM	Gathering server audits
+1/15/2017 9:45:36 PM	Scanning project for duplicate elements
+1/15/2017 9:45:36 PM	Finished duplicate element processing
+1/15/2017 9:45:38 PM	Finished importing database.
+1/15/2017 9:45:38 PM	A summary of the import was saved to the following location: M:\LoveTheSql\Repository\PerformanceAnalysis\Maintenance\Import Schema Logs\Maintenance_20170116024519.log
+1/15/2017 9:45:38 PM	Click Finish to continue...

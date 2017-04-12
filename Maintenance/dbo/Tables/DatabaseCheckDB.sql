@@ -1,0 +1,27 @@
+﻿CREATE TABLE [dbo].[DatabaseCheckDB] (
+    [ID]              BIGINT         IDENTITY (1, 1) NOT NULL,
+    [CheckDBStatusID] BIGINT         NOT NULL,
+    [DatabaseID]      INT            NOT NULL,
+    [Error]           INT            NULL,
+    [Level]           INT            NULL,
+    [State]           INT            NULL,
+    [MessageText]     VARCHAR (7000) NULL,
+    [RepairLevel]     INT            NULL,
+    [Status]          INT            NULL,
+    [DbId]            INT            NULL,
+    [ObjectId]        INT            NULL,
+    [IndexId]         INT            NULL,
+    [PartitionID]     INT            NULL,
+    [AllocUnitID]     INT            NULL,
+    [File]            INT            NULL,
+    [Page]            INT            NULL,
+    [Slot]            INT            NULL,
+    [RefFile]         INT            NULL,
+    [RefPage]         INT            NULL,
+    [RefSlot]         INT            NULL,
+    [Allocation]      INT            NULL,
+    CONSTRAINT [PK_DatabaseCheckDB] PRIMARY KEY CLUSTERED ([ID] ASC),
+    CONSTRAINT [FK_DatabaseCheckDB_DatabaseCheckDBStatus] FOREIGN KEY ([CheckDBStatusID]) REFERENCES [dbo].[DatabaseCheckDBStatus] ([CheckDBStatusID]),
+    CONSTRAINT [FK_DatabaseCheckDB_Databases] FOREIGN KEY ([DatabaseID]) REFERENCES [dbo].[Databases] ([DatabaseID])
+);
+
