@@ -1,0 +1,4570 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DataSchemaModel FileFormatVersion="1.2" SchemaVersion="2.4" DspName="Microsoft.Data.Tools.Schema.Sql.Sql110DatabaseSchemaProvider" CollationLcid="1033" CollationCaseSensitive="False" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+	<Header>
+		<CustomData Category="AnsiNulls">
+			<Metadata Name="AnsiNulls" Value="True" />
+		</CustomData>
+		<CustomData Category="QuotedIdentifier">
+			<Metadata Name="QuotedIdentifier" Value="True" />
+		</CustomData>
+		<CustomData Category="CompatibilityMode">
+			<Metadata Name="CompatibilityMode" Value="110" />
+		</CustomData>
+		<CustomData Category="Reference" Type="Assembly">
+			<Metadata Name="LogicalName" Value="ServerAnalysis.dll" />
+			<Metadata Name="FileName" Value="M:\LOVETHESQL\REPOSITORY\PERFORMANCEANALYSIS\SERVERANALYSIS\OBJ\RELEASE\SERVERANALYSIS.DLL" />
+			<Metadata Name="AssemblyName" Value="ServerAnalysis" />
+			<Metadata Name="PermissionSet" Value="SAFE" />
+			<Metadata Name="Owner" Value="" />
+			<Metadata Name="GenerateSqlClrDdl" Value="True" />
+			<Metadata Name="IsVisible" Value="True" />
+			<Metadata Name="IsModelAware" Value="True" />
+			<Metadata Name="SkipCreationIfEmpty" Value="True" />
+			<Metadata Name="AssemblySymbolsName" Value="M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysis\obj\Release\ServerAnalysis.pdb" />
+		</CustomData>
+		<CustomData Category="SqlCmdVariables" Type="SqlCmdVariable" />
+	</Header>
+	<Model>
+		<Element Type="SqlDatabaseOptions">
+			<Property Name="Collation" Value="SQL_Latin1_General_CP1_CI_AS" />
+			<Property Name="IsAnsiNullDefaultOn" Value="True" />
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Property Name="IsAnsiWarningsOn" Value="True" />
+			<Property Name="IsArithAbortOn" Value="True" />
+			<Property Name="IsConcatNullYieldsNullOn" Value="True" />
+			<Property Name="IsTornPageProtectionOn" Value="False" />
+			<Property Name="IsFullTextEnabled" Value="True" />
+			<Property Name="PageVerifyMode" Value="3" />
+			<Property Name="DefaultLanguage" Value="" />
+			<Property Name="DefaultFullTextLanguage" Value="" />
+			<Relationship Name="DefaultFilegroup">
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[PRIMARY]" />
+				</Entry>
+			</Relationship>
+		</Element>
+		<Element Type="SqlSchema" Name="[Analysis]">
+			<Relationship Name="Authorizer">
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[dbo]" />
+				</Entry>
+			</Relationship>
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[Alert_DiskSpace]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+BEGIN
+       -- SET NOCOUNT ON added to prevent extra result sets from
+       -- interfering with SELECT statements.
+       SET NOCOUNT ON;
+ 
+    DECLARE @tResults TABLE (ServerName VARCHAR(50), DriveName VARCHAR(5), Size INT, FreeSPace INT, PercentFree INT)
+       INSERT INTO @tResults
+              (      ServerName ,
+                     DriveName ,
+                     Size ,
+                     FreeSPace ,
+                     PercentFree)
+       SELECT ServerName,
+                     DriveName,
+                     CONVERT(INT,Size),
+                     CONVERT(INT,FreeSpace),
+                     CONVERT(INT,PercentFree)
+       FROM   [Analysis].[DiskUsage] (NOLOCK)
+       WHERE  Perfdate > CONVERT(DATE,GETDATE())
+              AND PercentFree < @Threshold;
+ 
+ 
+       IF (SELECT COUNT(*) FROM @tResults) > 0
+       BEGIN
+ 
+              DECLARE @body varchar(max);
+              DECLARE @Subject VARCHAR(50)=(@@SERVERNAME+' DISC ALERT ');
+      
+              -- Create HTML table output for email body.
+              SET @body = cast( (
+              SELECT td = tServerName + '</td><td>' + tDriveName+ '</td><td>' + tSize+ '</td><td>' + tFreeSPace+ '</td><td>' + tPercentFree
+              FROM (
+                           SELECT  tServerName = ServerName,
+                                         tDriveName = DriveName,
+                                         tSize = CONVERT(VARCHAR(12),Size)+' gb',
+                                         tFreeSPace = CONVERT(VARCHAR(12),FreeSPace)+' gb',
+                                         tPercentFree = CONVERT(VARCHAR(12),PercentFree)+'%'
+                           FROM @tResults
+                       ) as d
+              for xml path( 'tr' ), type ) as varchar(max) )
+      
+              SET @body = '<table cellpadding="2" cellspacing="2" border="1">'
+                             + '<tr><th>ServerName</th><th>DriveName</th><th>Size</th><th>Free Space</th><th>Percent Free</th></tr>'
+                             + replace( replace( @body, '&lt;', '<' ), '&gt;', '>' )
+                             + '</table>'
+      
+              -- SEND EMAIL
+              EXEC msdb.dbo.sp_send_dbmail
+                     @profile_name = 'LoveTheSql',
+                     @recipients = 'Dave@LoveTheSql.com',
+                     @body = @Body,
+                     @subject = @Subject ,
+                     @body_format = 'HTML'; 
+ 
+       END;
+END]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@tResults].[ServerName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@tResults].[DriveName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@tResults].[Size]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@tResults].[FreeSPace]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@tResults].[PercentFree]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[ServerName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[DriveName]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[Size]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[FreeSpace]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[PercentFree]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[PerfDate]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[date]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@Threshold]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@tResults].[ServerName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@tResults].[DriveName]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@tResults].[Size]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@tResults].[FreeSPace]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Alert_DiskSpace].[@tResults].[PercentFree]" />
+				</Entry>
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+			</Relationship>
+			<Relationship Name="DynamicObjects">
+				<Entry>
+					<Element Type="SqlDynamicColumnSource" Name="[Analysis].[Alert_DiskSpace].[@tResults]">
+						<Relationship Name="Columns">
+							<Entry>
+								<Element Type="SqlSimpleColumn" Name="[Analysis].[Alert_DiskSpace].[@tResults].[ServerName]">
+									<Relationship Name="TypeSpecifier">
+										<Entry>
+											<Element Type="SqlTypeSpecifier">
+												<Property Name="Length" Value="50" />
+												<Relationship Name="Type">
+													<Entry>
+														<References ExternalSource="BuiltIns" Name="[varchar]" />
+													</Entry>
+												</Relationship>
+											</Element>
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+							<Entry>
+								<Element Type="SqlSimpleColumn" Name="[Analysis].[Alert_DiskSpace].[@tResults].[DriveName]">
+									<Relationship Name="TypeSpecifier">
+										<Entry>
+											<Element Type="SqlTypeSpecifier">
+												<Property Name="Length" Value="5" />
+												<Relationship Name="Type">
+													<Entry>
+														<References ExternalSource="BuiltIns" Name="[varchar]" />
+													</Entry>
+												</Relationship>
+											</Element>
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+							<Entry>
+								<Element Type="SqlSimpleColumn" Name="[Analysis].[Alert_DiskSpace].[@tResults].[Size]">
+									<Relationship Name="TypeSpecifier">
+										<Entry>
+											<Element Type="SqlTypeSpecifier">
+												<Relationship Name="Type">
+													<Entry>
+														<References ExternalSource="BuiltIns" Name="[int]" />
+													</Entry>
+												</Relationship>
+											</Element>
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+							<Entry>
+								<Element Type="SqlSimpleColumn" Name="[Analysis].[Alert_DiskSpace].[@tResults].[FreeSPace]">
+									<Relationship Name="TypeSpecifier">
+										<Entry>
+											<Element Type="SqlTypeSpecifier">
+												<Relationship Name="Type">
+													<Entry>
+														<References ExternalSource="BuiltIns" Name="[int]" />
+													</Entry>
+												</Relationship>
+											</Element>
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+							<Entry>
+								<Element Type="SqlSimpleColumn" Name="[Analysis].[Alert_DiskSpace].[@tResults].[PercentFree]">
+									<Relationship Name="TypeSpecifier">
+										<Entry>
+											<Element Type="SqlTypeSpecifier">
+												<Relationship Name="Type">
+													<Entry>
+														<References ExternalSource="BuiltIns" Name="[int]" />
+													</Entry>
+												</Relationship>
+											</Element>
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Parameters">
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[Alert_DiskSpace].[@Threshold]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[11]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="164" />
+				<Property Name="Length" Value="2711" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="-- =============================================&#xD;&#xA;-- Author:           David Speight&#xD;&#xA;-- Create date: 2017-01-11&#xD;&#xA;-- =============================================&#xD;&#xA;CREATE PROCEDURE [Analysis].[Alert_DiskSpace]&#xD;&#xA;@Threshold INT = 11&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlTable" Name="[Analysis].[DatabaseUsage]">
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="Columns">
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DatabaseUsage].[database_id]">
+						<Property Name="IsNullable" Value="False" />
+						<Property Name="IsIdentity" Value="True" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DatabaseUsage].[PerfDate]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DatabaseUsage].[ServerName]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DatabaseUsage].[DatabaseName]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DatabaseUsage].[Collation]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DatabaseUsage].[CompatibilityLevel]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DatabaseUsage].[AutoShrink]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="5" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DatabaseUsage].[RecoveryModel]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DatabaseUsage].[Size]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DatabaseUsage].[SpaceAvailable]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SqlInlineConstraintAnnotation" Disambiguator="6" />
+		</Element>
+		<Element Type="SqlTable" Name="[Analysis].[DiskMemoryStats]">
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="Columns">
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskMemoryStats].[DiskMonitorStatID]">
+						<Property Name="IsNullable" Value="False" />
+						<Property Name="IsIdentity" Value="True" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskMemoryStats].[ServerNm]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskMemoryStats].[DateKey]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskMemoryStats].[TimeKey]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskMemoryStats].[TransactionRateSec]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskMemoryStats].[MemoryPagingRateSec]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskMemoryStats].[LogFlushesSec]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskMemoryStats].[LogBytesFlushedSec]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskMemoryStats].[ProcedureCacheRatio]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskMemoryStats].[SignalWaitPercent]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SqlInlineConstraintAnnotation" Disambiguator="7" />
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[DiskMemoryStatsGet]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+BEGIN
+
+	SET NOCOUNT ON;
+	-- Transaction Rate, Paging Rate, LogFlushesSec, LogBytesFlushSec
+	DECLARE @TransactionRate BIGINT,@PagingRate BIGINT,@LogBytesFlushedSec BIGINT,@LogFlushesSec BIGINT;
+	DECLARE @signal_wait_time_ms BIGINT, @wait_time_ms BIGINT;
+	DECLARE @ProcureCacheRatio DECIMAL(10,4);
+	DECLARE @SignalWaits DECIMAL(10,4);
+
+	-- Procedure Cache Ratio
+	;
+	WITH    cte1
+          AS ( SELECT [dopc].[object_name] ,
+                    [dopc].[instance_name] ,
+                    [dopc].[counter_name] ,
+                    [dopc].[cntr_value] ,
+                    [dopc].[cntr_type] ,
+                    ROW_NUMBER() OVER ( PARTITION BY [dopc].[object_name], [dopc].[instance_name] ORDER BY [dopc].[counter_name] ) AS r_n
+                FROM [sys].[dm_os_performance_counters] AS dopc
+                WHERE [dopc].[counter_name] LIKE '%Cache Hit Ratio%'
+                    AND ( [dopc].[object_name] LIKE '%Plan Cache%'
+                          OR [dopc].[object_name] LIKE '%Buffer Cache%'
+                        )
+                    AND [dopc].[instance_name] LIKE '%_Total%'
+             )
+	SELECT @ProcureCacheRatio = (	SELECT CONVERT(DECIMAL(16, 2), ( [c].[cntr_value] * 1.0 / [c1].[cntr_value] ) * 100.0) AS [hit_pct]
+								FROM [cte1] AS c
+									INNER JOIN [cte1] AS c1
+										ON c.[object_name] = c1.[object_name]
+										   AND c.[instance_name] = c1.[instance_name]
+								WHERE [c].[r_n] = 1
+									AND [c1].[r_n] = 2);
+
+	------- First sampling at 0 seconds -------
+		SELECT @TransactionRate = SUM(cntr_value)
+			FROM sys.dm_os_performance_counters
+			WHERE counter_name = 'transactions/sec'
+				AND object_name = 'SQLServer:Databases'
+				AND instance_name IN (select name from master.sys.databases)
+				AND instance_name NOT IN ('master','tempdb','model','msdb','SSISDB','ReportServer','ReportServerTempDB');
+;     -- Databases to monitor this could be revised to query a list from a table
+		SELECT @PagingRate = SUM(io1.io_stall)
+		FROM sys.dm_io_virtual_file_stats(NULL, NULL) io1;
+		SELECT @LogFlushesSec = SUM(cntr_value)
+		FROM sys.dm_os_performance_counters
+		WHERE counter_name ='Log Flushes/sec';
+		SELECT @LogBytesFlushedSec = SUM(cntr_value)
+		FROM sys.dm_os_performance_counters
+		WHERE counter_name ='Log Bytes Flushed/sec';
+
+		SELECT @signal_wait_time_ms = SUM(signal_wait_time_ms)
+		FROM sys.dm_os_wait_stats
+		SELECT @wait_time_ms = SUM(wait_time_ms)
+		FROM sys.dm_os_wait_stats;
+
+	WAITFOR DELAY '00:00:01';
+
+	------- second sampling at 1 second -------
+		SELECT @TransactionRate = SUM(cntr_value) - @TransactionRate
+			FROM sys.dm_os_performance_counters
+			WHERE counter_name = 'transactions/sec'
+				AND object_name = 'SQLServer:Databases'
+				AND instance_name IN ('MyDB1','MyDB2');     -- Databases to monitor this could be revised to query a list from a table
+		SELECT @PagingRate = SUM(io1.io_stall) - @PagingRate
+		FROM sys.dm_io_virtual_file_stats(NULL, NULL) io1;
+		SELECT @LogFlushesSec = SUM(cntr_value) - @LogFlushesSec
+		FROM sys.dm_os_performance_counters
+		WHERE counter_name ='Log Flushes/sec';
+		SELECT @LogBytesFlushedSec = SUM(cntr_value)-@LogBytesFlushedSec
+		FROM sys.dm_os_performance_counters
+		WHERE counter_name ='Log Bytes Flushed/sec';
+
+		SELECT @signal_wait_time_ms = SUM(signal_wait_time_ms) - @signal_wait_time_ms
+		FROM sys.dm_os_wait_stats
+		SELECT @wait_time_ms = SUM(wait_time_ms) - @wait_time_ms
+		FROM sys.dm_os_wait_stats;
+
+	SELECT @SignalWaits = (SELECT CAST(100.0 * @signal_wait_time_ms / NULLIF(@wait_time_ms,0) AS DECIMAL(10,4)));
+
+	INSERT INTO [Analysis].[DiskMemoryStats]
+	(ServerNm, DateKey, TimeKey, TransactionRateSec, MemoryPagingRateSec, LogFlushesSec, LogBytesFlushedSec, ProcedureCacheRatio, SignalWaitPercent)
+	SELECT @@SERVERNAME [ServerNm],
+			CONVERT(VARCHAR(10), GETDATE(),112) [DateKey],
+			LEFT((REPLACE(CONVERT(VARCHAR(10), GETDATE(),108),':','')),3)+'000' [TimeKey],
+			CONVERT(INT, @TransactionRate) [TransactionRate],
+			CONVERT(INT, @PagingRate) [MemoryPagingRateSec],
+			CONVERT(INT, @LogFlushesSec) [LogFlushesSec],
+			CONVERT(INT, @LogBytesFlushedSec) [LogBytesFlushedSec],
+			@ProcureCacheRatio [ProcedureCacheRatio],
+			@SignalWaits [SignalWaitPercent];
+
+END]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[bigint]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[bigint]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[bigint]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[bigint]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[bigint]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[bigint]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[decimal]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[decimal]" />
+				</Entry>
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[decimal]" />
+				</Entry>
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[decimal]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats].[ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats].[DateKey]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats].[TimeKey]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats].[TransactionRateSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats].[MemoryPagingRateSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats].[LogFlushesSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats].[LogBytesFlushedSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats].[ProcedureCacheRatio]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats].[SignalWaitPercent]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="DynamicObjects">
+				<Entry>
+					<Element Type="SqlDynamicColumnSource" Name="[Analysis].[DiskMemoryStatsGet].[CTE1].[cte1]">
+						<Relationship Name="Columns">
+							<Entry>
+								<Element Type="SqlComputedColumn" Name="[Analysis].[DiskMemoryStatsGet].[CTE1].[cte1].[object_name]">
+									<Relationship Name="ExpressionDependencies">
+										<Entry />
+									</Relationship>
+								</Element>
+							</Entry>
+							<Entry>
+								<Element Type="SqlComputedColumn" Name="[Analysis].[DiskMemoryStatsGet].[CTE1].[cte1].[instance_name]">
+									<Relationship Name="ExpressionDependencies">
+										<Entry />
+									</Relationship>
+								</Element>
+							</Entry>
+							<Entry>
+								<Element Type="SqlComputedColumn" Name="[Analysis].[DiskMemoryStatsGet].[CTE1].[cte1].[counter_name]">
+									<Relationship Name="ExpressionDependencies">
+										<Entry />
+									</Relationship>
+								</Element>
+							</Entry>
+							<Entry>
+								<Element Type="SqlComputedColumn" Name="[Analysis].[DiskMemoryStatsGet].[CTE1].[cte1].[cntr_value]">
+									<Relationship Name="ExpressionDependencies">
+										<Entry />
+									</Relationship>
+								</Element>
+							</Entry>
+							<Entry>
+								<Element Type="SqlComputedColumn" Name="[Analysis].[DiskMemoryStatsGet].[CTE1].[cte1].[cntr_type]">
+									<Relationship Name="ExpressionDependencies">
+										<Entry />
+									</Relationship>
+								</Element>
+							</Entry>
+							<Entry>
+								<Element Type="SqlComputedColumn" Name="[Analysis].[DiskMemoryStatsGet].[CTE1].[cte1].[r_n]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="164" />
+				<Property Name="Length" Value="4491" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="-- =============================================&#xD;&#xA;-- Author:&#x9;&#x9;Compiled by David Speight from SQL Central Sources&#xD;&#xA;-- =============================================&#xD;&#xA;CREATE PROCEDURE [Analysis].[DiskMemoryStatsGet]&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlTable" Name="[Analysis].[DiskUsage]">
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="Columns">
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskUsage].[disk_id]">
+						<Property Name="IsNullable" Value="False" />
+						<Property Name="IsIdentity" Value="True" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskUsage].[PerfDate]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskUsage].[ServerName]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskUsage].[VolumeName]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskUsage].[DriveName]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="5" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskUsage].[Size]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskUsage].[FreeSpace]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[DiskUsage].[PercentFree]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SqlInlineConstraintAnnotation" Disambiguator="8" />
+		</Element>
+		<Element Type="SqlForeignKeyConstraint" Name="[Analysis].[FX_InstanceStats]">
+			<Relationship Name="Columns">
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[ServerID]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="DefiningTable">
+				<Entry>
+					<References Name="[Analysis].[InstanceStats]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="ForeignColumns">
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[ServerID]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="ForeignTable">
+				<Entry>
+					<References Name="[Analysis].[ServerStats]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SqlInlineConstraintAnnotation" Disambiguator="9" />
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[insDatabaseUsage]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+	SET NOCOUNT ON
+	
+	INSERT INTO [Analysis].[DatabaseUsage]
+           ([PerfDate]
+           ,[ServerName]
+           ,[DatabaseName]
+           ,[Collation]
+           ,[CompatibilityLevel]
+           ,[AutoShrink]
+           ,[RecoveryModel]
+           ,[Size]
+           ,[SpaceAvailable])
+     VALUES
+           (@PerfDate
+           ,@ServerNm
+           ,@DBName
+           ,@Collation
+           ,@Compat
+           ,@Shrink
+           ,@Recovery
+           ,@Size
+           ,@Available)]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage].[PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage].[ServerName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage].[DatabaseName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage].[Collation]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage].[CompatibilityLevel]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage].[AutoShrink]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage].[RecoveryModel]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage].[Size]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage].[SpaceAvailable]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDatabaseUsage].[@PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDatabaseUsage].[@ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDatabaseUsage].[@DBName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDatabaseUsage].[@Collation]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDatabaseUsage].[@Compat]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDatabaseUsage].[@Shrink]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDatabaseUsage].[@Recovery]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDatabaseUsage].[@Size]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDatabaseUsage].[@Available]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="Parameters">
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDatabaseUsage].[@ServerNm]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDatabaseUsage].[@PerfDate]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDatabaseUsage].[@DBName]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDatabaseUsage].[@Collation]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDatabaseUsage].[@Compat]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDatabaseUsage].[@Shrink]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="5" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDatabaseUsage].[@Recovery]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDatabaseUsage].[@Size]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDatabaseUsage].[@Available]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="2" />
+				<Property Name="Length" Value="854" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="&#xD;&#xA;CREATE PROCEDURE [Analysis].[insDatabaseUsage]&#xD;&#xA;&#x9;&#x9;   (@ServerNm&#x9;varchar(30)=NULL&#xD;&#xA;&#x9;&#x9;   ,@PerfDate&#x9;DATETIME = NULL&#xD;&#xA;&#x9;&#x9;   ,@DBName&#x9;varchar(30)=NULL&#xD;&#xA;&#x9;&#x9;   ,@Collation&#x9;varchar(30)=NULL&#xD;&#xA;&#x9;&#x9;   ,@Compat&#x9;varchar(30)=NULL&#xD;&#xA;&#x9;&#x9;   ,@Shrink&#x9;varchar(5)=NULL&#xD;&#xA;&#x9;&#x9;   ,@Recovery&#x9;varchar(30)=NULL&#xD;&#xA;&#x9;&#x9;   ,@Size&#x9;float=NULL&#xD;&#xA;&#x9;&#x9;   ,@Available&#x9;float=NULL)&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[insDiskUsage]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+	SET NOCOUNT ON
+	
+	INSERT INTO [Analysis].[DiskUsage]
+           ([PerfDate]
+           ,[ServerName]
+           ,[VolumeName]
+           ,[DriveName]
+           ,[Size]
+           ,[FreeSpace]
+           ,[PercentFree])
+     VALUES
+           (@PerfDate
+           ,@ServerNm
+           ,@VolName
+           ,@Drive
+           ,@Size
+           ,@Free
+           ,@Percent)]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References Name="[Analysis].[DiskUsage]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[ServerName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[VolumeName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[DriveName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[Size]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[FreeSpace]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[PercentFree]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDiskUsage].[@PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDiskUsage].[@ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDiskUsage].[@VolName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDiskUsage].[@Drive]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDiskUsage].[@Size]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDiskUsage].[@Free]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insDiskUsage].[@Percent]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="Parameters">
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDiskUsage].[@ServerNm]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDiskUsage].[@PerfDate]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDiskUsage].[@VolName]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDiskUsage].[@Drive]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="5" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDiskUsage].[@Size]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDiskUsage].[@Free]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insDiskUsage].[@Percent]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="2" />
+				<Property Name="Length" Value="647" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="&#xD;&#xA;CREATE PROCEDURE [Analysis].[insDiskUsage]&#xD;&#xA;&#x9;&#x9;   (@ServerNm&#x9;varchar(30)=NULL&#xD;&#xA;&#x9;&#x9;   ,@PerfDate&#x9;DATETIME = NULL&#xD;&#xA;&#x9;&#x9;   ,@VolName&#x9;varchar(30)=NULL&#xD;&#xA;&#x9;&#x9;   ,@Drive&#x9;varchar(5)=NULL&#xD;&#xA;&#x9;&#x9;   ,@Size&#x9;float=NULL&#xD;&#xA;&#x9;&#x9;   ,@Free&#x9;float=NULL&#xD;&#xA;&#x9;&#x9;   ,@Percent&#x9;float=NULL)&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[insInstanceStats]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+    SET NOCOUNT ON
+    
+    DECLARE @InstanceOut table( InstanceID int);
+
+    INSERT INTO [Analysis].[InstanceStats]
+           ([ServerID]
+           ,[ServerNm]
+           ,[InstanceNm]
+           ,[PerfDate]
+           ,[FwdRecSec]
+           ,[PgSpltSec]
+           ,[BufCchHit]
+           ,[PgLifeExp]
+           ,[LogGrwths]
+           ,[BlkProcs]
+           ,[BatReqSec]
+           ,[SQLCompSec]
+           ,[SQLRcmpSec])
+    OUTPUT INSERTED.InstanceID INTO @InstanceOut
+    VALUES
+           (@ServerID
+           ,@ServerNm
+           ,@InstanceNm
+           ,@PerfDate
+           ,@FwdRecSec
+           ,@PgSpltSec
+           ,@BufCchHit
+           ,@PgLifeExp
+           ,@LogGrwths
+           ,@BlkProcs
+           ,@BatReqSec
+           ,@SQLCompSec
+           ,@SQLRcmpSec)
+
+    SELECT @InstanceID = InstanceID FROM @InstanceOut
+    
+    RETURN]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References Name="[Analysis].[InstanceStats]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[ServerID]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[InstanceNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[FwdRecSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[PgSpltSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[BufCchHit]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[PgLifeExp]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[LogGrwths]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[BlkProcs]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[BatReqSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[SQLCompSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[SQLRcmpSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@ServerID]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@InstanceNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@FwdRecSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@PgSpltSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@BufCchHit]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@PgLifeExp]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@LogGrwths]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@BlkProcs]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@BatReqSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@SQLCompSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@SQLRcmpSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[InstanceID]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@InstanceID]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insInstanceStats].[@InstanceOut].[InstanceID]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="DynamicObjects">
+				<Entry>
+					<Element Type="SqlDynamicColumnSource" Name="[Analysis].[insInstanceStats].[@InstanceOut]">
+						<Relationship Name="Columns">
+							<Entry>
+								<Element Type="SqlSimpleColumn" Name="[Analysis].[insInstanceStats].[@InstanceOut].[InstanceID]">
+									<Relationship Name="TypeSpecifier">
+										<Entry>
+											<Element Type="SqlTypeSpecifier">
+												<Relationship Name="Type">
+													<Entry>
+														<References ExternalSource="BuiltIns" Name="[int]" />
+													</Entry>
+												</Relationship>
+											</Element>
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Parameters">
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@InstanceID]">
+						<Property Name="IsOutput" Value="True" />
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@ServerID]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@ServerNm]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@InstanceNm]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@PerfDate]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@FwdRecSec]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@PgSpltSec]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@BufCchHit]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@PgLifeExp]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@LogGrwths]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@BlkProcs]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@BatReqSec]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@SQLCompSec]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insInstanceStats].[@SQLRcmpSec]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="Length" Value="1588" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="CREATE PROCEDURE [Analysis].[insInstanceStats]&#xD;&#xA;           (@InstanceID     int OUTPUT&#xD;&#xA;           ,@ServerID       int = NULL&#xD;&#xA;           ,@ServerNm       varchar(30) = NULL&#xD;&#xA;           ,@InstanceNm     varchar(30) = NULL&#xD;&#xA;           ,@PerfDate       datetime = NULL&#xD;&#xA;           ,@FwdRecSec      decimal(10,4) = NULL&#xD;&#xA;           ,@PgSpltSec      decimal(10,4) = NULL&#xD;&#xA;           ,@BufCchHit      decimal(10,4) = NULL&#xD;&#xA;           ,@PgLifeExp      int = NULL&#xD;&#xA;           ,@LogGrwths      int = NULL&#xD;&#xA;           ,@BlkProcs       int = NULL&#xD;&#xA;           ,@BatReqSec      decimal(10,4) = NULL&#xD;&#xA;           ,@SQLCompSec     decimal(10,4) = NULL&#xD;&#xA;           ,@SQLRcmpSec     decimal(10,4) = NULL)&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[insServerStats]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+    SET NOCOUNT ON
+    
+    DECLARE @ServerOut table( ServerID int);
+
+    INSERT INTO [Analysis].[ServerStats]
+           ([ServerNm]
+           ,[PerfDate]
+           ,[PctProc]
+           ,[Memory]
+           ,[PgFilUse]
+           ,[DskSecRd]
+           ,[DskSecWrt]
+           ,[ProcQueLn])
+    OUTPUT INSERTED.ServerID INTO @ServerOut
+        VALUES
+           (@ServerNm
+           ,@PerfDate
+           ,@PctProc
+           ,@Memory
+           ,@PgFilUse
+           ,@DskSecRd
+           ,@DskSecWrt
+           ,@ProcQueLn)
+
+    SELECT @ServerID = ServerID FROM @ServerOut
+    
+    RETURN]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References Name="[Analysis].[ServerStats]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[PctProc]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[Memory]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[PgFilUse]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[DskSecRd]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[DskSecWrt]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[ProcQueLn]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insServerStats].[@ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insServerStats].[@PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insServerStats].[@PctProc]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insServerStats].[@Memory]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insServerStats].[@PgFilUse]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insServerStats].[@DskSecRd]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insServerStats].[@DskSecWrt]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insServerStats].[@ProcQueLn]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[ServerID]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insServerStats].[@ServerID]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[insServerStats].[@ServerOut].[ServerID]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="DynamicObjects">
+				<Entry>
+					<Element Type="SqlDynamicColumnSource" Name="[Analysis].[insServerStats].[@ServerOut]">
+						<Relationship Name="Columns">
+							<Entry>
+								<Element Type="SqlSimpleColumn" Name="[Analysis].[insServerStats].[@ServerOut].[ServerID]">
+									<Relationship Name="TypeSpecifier">
+										<Entry>
+											<Element Type="SqlTypeSpecifier">
+												<Relationship Name="Type">
+													<Entry>
+														<References ExternalSource="BuiltIns" Name="[int]" />
+													</Entry>
+												</Relationship>
+											</Element>
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Parameters">
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insServerStats].[@ServerID]">
+						<Property Name="IsOutput" Value="True" />
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insServerStats].[@ServerNm]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insServerStats].[@PerfDate]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insServerStats].[@PctProc]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insServerStats].[@Memory]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[bigint]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insServerStats].[@PgFilUse]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insServerStats].[@DskSecRd]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insServerStats].[@DskSecWrt]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[insServerStats].[@ProcQueLn]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="Length" Value="1084" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="CREATE PROCEDURE [Analysis].[insServerStats]&#xD;&#xA;           (@ServerID       int OUTPUT&#xD;&#xA;           ,@ServerNm       varchar(30) = NULL&#xD;&#xA;           ,@PerfDate       datetime = NULL&#xD;&#xA;           ,@PctProc        decimal(10,4) = NULL&#xD;&#xA;           ,@Memory     bigint = NULL&#xD;&#xA;           ,@PgFilUse       decimal(10,4) = NULL&#xD;&#xA;           ,@DskSecRd       decimal(10,4) = NULL&#xD;&#xA;           ,@DskSecWrt      decimal(10,4) = NULL&#xD;&#xA;           ,@ProcQueLn      int = NULL)&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlTable" Name="[Analysis].[InstanceMemory]">
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="Columns">
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[MemoryID]">
+						<Property Name="IsNullable" Value="False" />
+						<Property Name="IsIdentity" Value="True" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[MemoryDate]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[DateKey]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[TimeKey]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[ServerName]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[KbMemoryUsedByBufferPool]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[KbMemoryNeededPerCurrentWorkload]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[KbMemoryDynamicUsedForConnections]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[KbMemoryDynamicUsedForLocks]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[KbMemoryDynamicUsedForCache]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[KbMemoryDynamicUsedForQueryOptimization]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[KbMemoryDynamicUsedForHashSortIndexOps]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[KbMemoryConsumedByCursors]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[8kbPagesInBufferPool]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[8kbDataPagesInBufferPool]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[8kbFreePagesInBufferPool]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[8kbReservedPagesInBufferPool]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[8kbStolenPagesInBufferPool]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[8kbPlaCachePagesInBufferPool]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[PageLifeExpectancy]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[NumberRequestsSecWaitForFreePage]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[NumberPagesFlushedDiskSec]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[NumberBuffersWrittenSecByBufferMgrLazyWriter]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[MemoryGrantsPending]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceMemory].[MemoryGrantsOutstanding]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SqlInlineConstraintAnnotation" Disambiguator="10" />
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[InstanceMemoryGet]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+BEGIN
+
+	SET NOCOUNT ON;
+	 -- Get size of SQL Server Page in bytes 
+	 DECLARE @pg_size INT, @Instancename varchar(50) 
+	 SELECT @pg_size = low from master..spt_values where number = 1 and type = 'E' 
+ 
+	 -- Extract perfmon counters to a temporary table 
+	 IF OBJECT_ID('tempdb..#perfmon_counters') is not null DROP TABLE #perfmon_counters 
+	 SELECT * INTO #perfmon_counters FROM sys.dm_os_performance_counters 
+
+	  -- Get SQL Server instance name 
+	SELECT @Instancename = LEFT([object_name], (CHARINDEX(':',[object_name]))) FROM #perfmon_counters WHERE counter_name = 'Buffer cache hit ratio' 
+ 
+	INSERT INTO [Analysis].[InstanceMemory]
+	SELECT
+		GETDATE(),
+		CONVERT(VARCHAR(10), GETDATE(),112) [DateKey],
+		LEFT((REPLACE(CONVERT(VARCHAR(10), GETDATE(),108),':','')),3)+'000' [TimeKey],
+		CONVERT(VARCHAR(30),@@SERVERNAME),
+		(SELECT cntr_value FROM #perfmon_counters WHERE counter_name = 'Total Server Memory (KB)'),				--[KbMemoryUsedByBufferPool]
+		(SELECT cntr_value FROM #perfmon_counters WHERE counter_name = 'Target Server Memory (KB)'),			--[KbMemoryNeededPerCurrentWorkload]
+		(SELECT cntr_value FROM #perfmon_counters WHERE counter_name = 'Connection Memory (KB)'),				--[KbMemoryDynamicUsedForConnections]
+		(SELECT cntr_value FROM #perfmon_counters WHERE counter_name = 'Lock Memory (KB)'),						--[KbMemoryDynamicUsedForLocks]
+		(SELECT cntr_value FROM #perfmon_counters WHERE counter_name = 'SQL Cache Memory (KB)'),				--[KbMemoryDynamicUsedForCache]
+		(SELECT cntr_value FROM #perfmon_counters WHERE counter_name = 'Optimizer Memory (KB) '),				--[KbMemoryDynamicUsedForQueryOptimization]
+		(SELECT cntr_value FROM #perfmon_counters WHERE counter_name = 'Granted Workspace Memory (KB) '),		--[KbMemoryDynamicUsedForHashSortIndexOps]
+		(SELECT cntr_value FROM #perfmon_counters WHERE counter_name = 'Cursor memory usage' and instance_name = '_Total'),				--[KbMemoryConsumedByCursors]
+		(SELECT cntr_value FROM #perfmon_counters WHERE object_name= @Instancename+'Buffer Manager' and counter_name = 'Total pages'),	--[8kbPagesInBufferPool]
+		(SELECT cntr_value FROM #perfmon_counters WHERE object_name=@Instancename+'Buffer Manager' and counter_name = 'Database pages'),--[8kbDataPagesInBufferPool]
+		(SELECT cntr_value FROM #perfmon_counters WHERE object_name=@Instancename+'Buffer Manager' and counter_name = 'Free pages'),	--[8kbFreePagesInBufferPool]
+		(SELECT cntr_value FROM #perfmon_counters WHERE object_name=@Instancename+'Buffer Manager' and counter_name = 'Reserved pages'),--[8kbReservedPagesInBufferPool]
+		(SELECT cntr_value FROM #perfmon_counters WHERE object_name=@Instancename+'Buffer Manager' and counter_name = 'Stolen pages'),	--[8kbStolenPagesInBufferPool]
+		(SELECT cntr_value FROM #perfmon_counters WHERE object_name=@Instancename+'Plan Cache' and counter_name = 'Cache Pages' and instance_name = '_Total'),	--[8kbPlaCachePagesInBufferPool]
+		(SELECT cntr_value FROM #perfmon_counters WHERE object_name=@Instancename+'Buffer Manager' and counter_name = 'Page life expectancy'), --[PageLifeExpectancy]    CASE WHEN (cntr_value > 300) THEN 'PLE is Healthy' ELSE 'PLE is not Healthy' END as 'PLE Status'
+		(SELECT cntr_value as [Free list stalls/sec] FROM #perfmon_counters WHERE object_name=@Instancename+'Buffer Manager' and counter_name = 'Free list stalls/sec'),			--[NumberRequestsSecWaitForFreePage]
+		(SELECT cntr_value as [Checkpoint pages/sec] FROM #perfmon_counters WHERE object_name=@Instancename+'Buffer Manager' and counter_name = 'Checkpoint pages/sec'),			--[NumberPagesFlushedDiskSec]
+		(SELECT cntr_value as [Lazy writes/sec] FROM #perfmon_counters WHERE object_name=@Instancename+'Buffer Manager' and counter_name = 'Lazy writes/sec'),						--[NumberBuffersWrittenSecByBufferMgrLazyWriter]
+		(SELECT cntr_value as [Memory Grants Pending] FROM #perfmon_counters WHERE object_name=@Instancename+'Memory Manager' and counter_name = 'Memory Grants Pending'),			--[MemoryGrantsPending] 
+		(SELECT cntr_value as [Memory Grants Outstanding] FROM #perfmon_counters WHERE object_name=@Instancename+'Memory Manager' and counter_name = 'Memory Grants Outstanding')	--[MemoryGrantsOutstanding]
+
+END]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry>
+					<References Name="[Analysis].[InstanceMemoryGet].[#perfmon_counters]" />
+				</Entry>
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry>
+					<References Name="[Analysis].[InstanceMemory]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+			</Relationship>
+			<Relationship Name="DynamicObjects">
+				<Entry>
+					<Element Type="SqlDynamicColumnSource" Name="[Analysis].[InstanceMemoryGet].[#perfmon_counters]">
+						<Relationship Name="Columns">
+							<Entry>
+								<Element Type="SqlComputedColumn" Name="[Analysis].[InstanceMemoryGet].[#perfmon_counters].[*]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="474" />
+				<Property Name="Length" Value="4706" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="-- =============================================&#xD;&#xA;/* Author:&#x9; Script to report Memory usage details of a SQL Server instance &#xD;&#xA; Author: Sakthivel Chidambaram, Microsoft http://blogs.msdn.com/b/sqlsakthi &#xD;&#xA; &#xD;&#xA; Date: June 2012 &#xD;&#xA; Version: V2 &#xD;&#xA; &#xD;&#xA; V1: Initial Release &#xD;&#xA; V2: Added PLE, Memory grants pending, Checkpoint, Lazy write,Free list counters &#xD;&#xA; */&#xD;&#xA;&#xD;&#xA;-- Create date: &lt;Create Date,,&gt;&#xD;&#xA;-- Description:&#x9;&lt;Description,,&gt;&#xD;&#xA;-- =============================================&#xD;&#xA;CREATE PROCEDURE [Analysis].[InstanceMemoryGet]&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlTable" Name="[Analysis].[InstanceStats]">
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="Columns">
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[InstanceID]">
+						<Property Name="IsNullable" Value="False" />
+						<Property Name="IsIdentity" Value="True" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[ServerID]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[ServerNm]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[InstanceNm]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[PerfDate]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[FwdRecSec]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[PgSpltSec]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[BufCchHit]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[PgLifeExp]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[LogGrwths]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[BlkProcs]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[BatReqSec]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[SQLCompSec]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[InstanceStats].[SQLRcmpSec]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SqlInlineConstraintAnnotation" Disambiguator="11" />
+			<AttachedAnnotation Disambiguator="9" />
+		</Element>
+		<Element Type="SqlIndex" Name="[Analysis].[InstanceStats].[AK_ServerStats]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[InstanceStats].[ServerID]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="IndexedObject">
+				<Entry>
+					<References Name="[Analysis].[InstanceStats]" />
+				</Entry>
+			</Relationship>
+		</Element>
+		<Element Type="SqlScalarFunction" Name="[Analysis].[NegToZero]">
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[float]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[NegToZero].[@inNumber]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="FunctionBody">
+				<Entry>
+					<Element Type="SqlScriptFunctionImplementation">
+						<Property Name="BodyScript">
+							<Value><![CDATA[
+BEGIN
+	-- Declare the return variable here
+	DECLARE @outNumber float 
+
+	SELECT @outNumber = (CASE WHEN @inNumber < 0 THEN 0 ELSE @inNumber END);
+	-- Return the result of the function
+	RETURN @outNumber
+
+END]]></Value>
+						</Property>
+						<Annotation Type="SysCommentsObjectAnnotation">
+							<Property Name="CreateOffset" Value="196" />
+							<Property Name="Length" Value="493" />
+							<Property Name="StartLine" Value="1" />
+							<Property Name="StartColumn" Value="1" />
+							<Property Name="HeaderContents" Value="-- =============================================&#xD;&#xA;-- Author:&#x9;&#x9;&lt;Author,,Name&gt;&#xD;&#xA;-- Create date: &lt;Create Date, ,&gt;&#xD;&#xA;-- Description:&#x9;&lt;Description, ,&gt;&#xD;&#xA;-- =============================================&#xD;&#xA;CREATE FUNCTION [Analysis].[NegToZero]&#xD;&#xA;(&#xD;&#xA;@inNumber float&#xD;&#xA;)&#xD;&#xA;RETURNS float &#xD;&#xA;AS" />
+						</Annotation>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Parameters">
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[NegToZero].[@inNumber]">
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="Type">
+				<Entry>
+					<Element Type="SqlTypeSpecifier">
+						<Property Name="Precision" Value="53" />
+						<Relationship Name="Type">
+							<Entry>
+								<References ExternalSource="BuiltIns" Name="[float]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+		</Element>
+		<Element Type="SqlPrimaryKeyConstraint" Name="[Analysis].[PK_DatabaseUsage]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[DatabaseUsage].[database_id]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="DefiningTable">
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage]" />
+				</Entry>
+			</Relationship>
+			<AttachedAnnotation Disambiguator="6" />
+		</Element>
+		<Element Type="SqlPrimaryKeyConstraint" Name="[Analysis].[PK_DiskMemoryStats]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[DiskMemoryStats].[DiskMonitorStatID]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="DefiningTable">
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats]" />
+				</Entry>
+			</Relationship>
+			<AttachedAnnotation Disambiguator="7" />
+		</Element>
+		<Element Type="SqlPrimaryKeyConstraint" Name="[Analysis].[PK_DiskUsage]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[DiskUsage].[disk_id]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="DefiningTable">
+				<Entry>
+					<References Name="[Analysis].[DiskUsage]" />
+				</Entry>
+			</Relationship>
+			<AttachedAnnotation Disambiguator="8" />
+		</Element>
+		<Element Type="SqlPrimaryKeyConstraint" Name="[Analysis].[PK_InstanceMemory]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[InstanceMemory].[MemoryID]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="DefiningTable">
+				<Entry>
+					<References Name="[Analysis].[InstanceMemory]" />
+				</Entry>
+			</Relationship>
+			<AttachedAnnotation Disambiguator="10" />
+		</Element>
+		<Element Type="SqlPrimaryKeyConstraint" Name="[Analysis].[PK_InstanceStats]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[InstanceStats].[InstanceID]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="DefiningTable">
+				<Entry>
+					<References Name="[Analysis].[InstanceStats]" />
+				</Entry>
+			</Relationship>
+			<AttachedAnnotation Disambiguator="11" />
+		</Element>
+		<Element Type="SqlPrimaryKeyConstraint" Name="[Analysis].[PK_QueryElapsedTime]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[QueryElapsedTime].[ID]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="DefiningTable">
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTime]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SqlInlineConstraintAnnotation" Disambiguator="12" />
+		</Element>
+		<Element Type="SqlPrimaryKeyConstraint" Name="[Analysis].[PK_Server]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[Server].[ServerID]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="DefiningTable">
+				<Entry>
+					<References Name="[Analysis].[Server]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SqlInlineConstraintAnnotation" Disambiguator="13" />
+		</Element>
+		<Element Type="SqlPrimaryKeyConstraint" Name="[Analysis].[PK_ServerStats]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[ServerStats].[ServerID]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="DefiningTable">
+				<Entry>
+					<References Name="[Analysis].[ServerStats]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SqlInlineConstraintAnnotation" Disambiguator="14" />
+		</Element>
+		<Element Type="SqlTable" Name="[Analysis].[QueryElapsedTime]">
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="Columns">
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[QueryElapsedTime].[ID]">
+						<Property Name="IsNullable" Value="False" />
+						<Property Name="IsIdentity" Value="True" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[QueryElapsedTime].[ServerName]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="50" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[QueryElapsedTime].[DatabaseName]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="50" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[QueryElapsedTime].[DateKey]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[QueryElapsedTime].[TimeKey]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[QueryElapsedTime].[Object_Name]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="50" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[QueryElapsedTime].[Total_Seconds]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Precision" Value="53" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[float]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[QueryElapsedTime].[Execution_Count]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[QueryElapsedTime].[Query]">
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="IsMax" Value="True" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<AttachedAnnotation Disambiguator="12" />
+		</Element>
+		<Element Type="SqlIndex" Name="[Analysis].[QueryElapsedTime].[IX_Analysis_QueryElapsedTime_DateTimeKeys]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[QueryElapsedTime].[DateKey]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[QueryElapsedTime].[TimeKey]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[QueryElapsedTime].[Object_Name]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="IncludedColumns">
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTime].[DatabaseName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTime].[Execution_Count]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTime].[Query]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTime].[ServerName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTime].[Total_Seconds]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="IndexedObject">
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTime]" />
+				</Entry>
+			</Relationship>
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[QueryElapsedTimeClean]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+BEGIN
+
+ DELETE 
+ FROM [Analysis].[QueryElapsedTime]
+ WHERE DateKey < CONVERT(INT,(CONVERT(VARCHAR(10), DATEADD(MONTH,(0-@MonthsToKeep),GETDATE()),112)));
+
+ DELETE
+ FROM [Analysis].[DatabaseUsage]
+ WHERE PerfDate < DATEADD(MONTH,(0-@MonthsToKeep),GETDATE());
+
+ DELETE 
+ FROM [Analysis].[DiskMemoryStats]
+ WHERE DateKey < CONVERT(INT,(CONVERT(VARCHAR(10), DATEADD(MONTH,(0-@MonthsToKeep),GETDATE()),112)));
+
+ DELETE
+ FROM [Analysis].[DiskUsage]
+ WHERE PerfDate < DATEADD(MONTH,(0-@MonthsToKeep),GETDATE());
+
+ DELETE 
+ FROM [Analysis].[InstanceMemory]
+ WHERE DateKey < CONVERT(INT,(CONVERT(VARCHAR(10), DATEADD(MONTH,(0-@MonthsToKeep),GETDATE()),112)));
+
+ DELETE
+ FROM [Analysis].[InstanceStats]
+ WHERE PerfDate < DATEADD(MONTH,(0-@MonthsToKeep),GETDATE());
+
+ DELETE
+ FROM [Analysis].[ServerStats]
+ WHERE PerfDate < DATEADD(MONTH,(0-@MonthsToKeep),GETDATE());
+
+ 
+END]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTime]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTime].[DateKey]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTimeClean].[@MonthsToKeep]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DatabaseUsage].[PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskMemoryStats].[DateKey]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[DiskUsage].[PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceMemory]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceMemory].[DateKey]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[PerfDate]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="Parameters">
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[QueryElapsedTimeClean].[@MonthsToKeep]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[2]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="127" />
+				<Property Name="Length" Value="1101" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="-- =============================================&#xD;&#xA;-- Author:&#x9;&#x9;David Speight&#xD;&#xA;-- =============================================&#xD;&#xA;CREATE PROCEDURE [Analysis].[QueryElapsedTimeClean]&#xD;&#xA;@MonthsToKeep INT = 2&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[QueryElapsedTimeGet]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+BEGIN
+
+	SET NOCOUNT ON;
+	SET TRAN ISOLATION LEVEL READ UNCOMMITTED;
+
+	SELECT @EndDate = (CASE WHEN @EndDate IS NULL THEN (GETDATE()) ELSE @EndDate END);
+
+	DECLARE @TimeKey INT = CONVERT(INT,(SELECT LEFT((REPLACE(CONVERT(VARCHAR(10), @EndDate,108),':','')),3)+'000'));
+    DECLARE @DateKey INT = CONVERT(INT,(CONVERT(VARCHAR(10), @EndDate,112)));
+	-- Get data and time from 10 minutes ago.
+	DECLARE @TimeKeyPrevious INT = CONVERT(INT,(SELECT LEFT((REPLACE(CONVERT(VARCHAR(10), DATEADD(MINUTE,(0-@MinutesBack),@EndDate),108),':','')),3)+'000'));
+	DECLARE @DateKeyPrevious INT = CONVERT(INT,(CONVERT(VARCHAR(10), DATEADD(MINUTE,(0-@MinutesBack),@EndDate),112)));
+
+	SELECT	[Object_Name], 
+			[Rank]-1 AS [Rank],
+			Query, 
+			DateKey, 
+			CONVERT(INT,(CASE	WHEN LEN(TimeKey) = 6 THEN LEFT(TimeKey,4)
+					ELSE LEFT(TimeKey,3) END)) AS [TimeKey],
+			ISNULL([Total_Seconds_Diff],0) AS [Total_Seconds_Diff],
+			ISNULL([Execution_Count_Diff],0) AS [Total_Count],
+			ISNULL([ElapsedTime],0) AS [Average_Seconds]
+	FROM (
+	SELECT	([DatabaseName] +'..' + [Object_Name]) AS [Object_Name],  
+	RANK() OVER (PARTITION BY [Object_Name], Query ORDER BY DateKey, TimeKey) [Rank],
+	DateKey, TimeKey, Total_Seconds, Execution_Count, Query,
+	LAG(Total_Seconds,1,0) OVER (ORDER BY [Object_Name], Query, DateKey, TimeKey) AS [Total_Seconds_Lag],	
+	[Analysis].[NegToZero]((Total_Seconds - LAG(Total_Seconds,1,0) OVER (ORDER BY [Object_Name], Query, DateKey, TimeKey))) AS [Total_Seconds_Diff],
+	LAG(Execution_Count,1,0) OVER (ORDER BY [Object_Name], Query, DateKey, TimeKey) AS [Execution_Count_Lag],
+	[Analysis].[NegToZero]((Execution_Count - LAG(Execution_Count,1,0) OVER (ORDER BY [Object_Name], Query, DateKey, TimeKey))) AS [Execution_Count_Diff],
+	([Analysis].[NegToZero]((Total_Seconds - LAG(Total_Seconds,1,0) OVER (ORDER BY [Object_Name], Query, DateKey, TimeKey)))) / NULLIF(([Analysis].[NegToZero]((Execution_Count - LAG(Execution_Count,1,0) OVER (ORDER BY [Object_Name], Query, DateKey, TimeKey)))),0) AS [ElapsedTime]
+	FROM	ServerAnalysis.Analysis.QueryElapsedTime
+	WHERE	[ServerName] = CONVERT(NVARCHAR(50),@@SERVERNAME)
+		AND	(@DatabaseName IS NULL OR [DatabaseName] = CONVERT(NVARCHAR(50),DB_NAME())) -- Gets data on local server, if multiple instances change to = @DatabaseName
+		AND DateKey BETWEEN @DateKeyPrevious AND @DateKey
+		AND TimeKey BETWEEN @TimeKeyPrevious AND @TimeKey
+		AND [Object_Name] <> 'QueryElapsedTimeRecord'
+	) a
+	WHERE a.[Rank] > 1 AND a.Total_Seconds_Diff > 0
+	ORDER BY [Object_Name], Query, DateKey, TimeKey;
+
+	SET TRAN ISOLATION LEVEL READ COMMITTED;
+
+END]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTimeGet].[@EndDate]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTimeGet].[@MinutesBack]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry>
+					<References Name="[Analysis].[NegToZero]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[NegToZero]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[NegToZero]" />
+				</Entry>
+				<Entry />
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[nvarchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[QueryElapsedTimeGet].[@DatabaseName]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[nvarchar]" />
+				</Entry>
+				<Entry />
+				<Entry />
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry />
+				<Entry>
+					<References Name="[Analysis].[NegToZero]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[NegToZero]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="Parameters">
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[QueryElapsedTimeGet].[@ServerName]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[@@SERVERNAME]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="50" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[nvarchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[QueryElapsedTimeGet].[@DatabaseName]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="50" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[nvarchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[QueryElapsedTimeGet].[@EndDate]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[NULL]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[QueryElapsedTimeGet].[@MinutesBack]">
+						<Property Name="DefaultExpressionScript">
+							<Value><![CDATA[60]]></Value>
+						</Property>
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="127" />
+				<Property Name="Length" Value="2925" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="-- =============================================&#xD;&#xA;-- Author:&#x9;&#x9;David Speight&#xD;&#xA;-- =============================================&#xD;&#xA;CREATE PROCEDURE [Analysis].[QueryElapsedTimeGet] &#xD;&#xA;@ServerName NVARCHAR(50)=@@SERVERNAME,&#xD;&#xA;@DatabaseName NVARCHAR(50) = NULL,&#xD;&#xA;@EndDate DATETIME = NULL,&#xD;&#xA;@MinutesBack INT = 60&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[QueryElapsedTimeRecord]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+BEGIN
+	
+	SET NOCOUNT ON;
+	SET TRAN ISOLATION LEVEL READ UNCOMMITTED;
+	SET DEADLOCK_PRIORITY LOW;
+	SET XACT_ABORT ON;
+	BEGIN TRANSACTION;
+		INSERT INTO [ServerAnalysis].[Analysis].[QueryElapsedTime]
+		([ServerName],[DatabaseName],[DateKey],[TimeKey],[Object_Name],[Total_Seconds],[Execution_Count],[Query])
+		SELECT TOP 100
+			@@SERVERNAME,
+			DB_NAME(qt.dbid),
+			CONVERT(VARCHAR(10), GETDATE(),112) [DateKey],
+			LEFT((REPLACE(CONVERT(VARCHAR(10), GETDATE(),108),':','')),3)+'000' [TimeKey],
+			o.name AS [object_name],
+			qs.total_elapsed_time / 1000000.0 AS total_seconds,
+			qs.execution_count,
+			SUBSTRING (qt.text,qs.statement_start_offset/2, 
+						(CASE	WHEN qs.statement_end_offset = -1 THEN LEN(CONVERT(NVARCHAR(MAX), qt.text)) * 2 
+								ELSE qs.statement_end_offset END - qs.statement_start_offset)/2) AS individual_query
+		FROM	sys.dm_exec_query_stats qs
+				CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) as qt
+				LEFT OUTER JOIN sys.objects o ON qt.objectid = o.object_id
+		WHERE	qt.dbid = DB_ID()
+			AND qs.last_execution_time > DATEADD(day, -1,GETDATE())
+		ORDER BY (qs.total_elapsed_time / qs.execution_count / 1000000.0) DESC;
+	COMMIT;
+	SET TRAN ISOLATION LEVEL READ COMMITTED;
+	RETURN 0;
+
+END]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry />
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[nvarchar]" />
+				</Entry>
+				<Entry />
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="194" />
+				<Property Name="Length" Value="1499" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="-- =============================================&#xD;&#xA;-- Author:&#x9;&#x9;&lt;Author,,Name&gt;&#xD;&#xA;-- Create date: &lt;Create Date,,&gt;&#xD;&#xA;-- Description:&#x9;&lt;Description,,&gt;&#xD;&#xA;-- =============================================&#xD;&#xA;CREATE PROCEDURE [Analysis].[QueryElapsedTimeRecord]&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[selComparativeAnalysisReport]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+SET NOCOUNT ON
+
+DECLARE @Sep INT, @BoxNm VARCHAR(50), @InstNm VARCHAR(50)
+
+SELECT @Sep = CHARINDEX('\', @InstanceName)
+
+IF @Sep > 0
+  BEGIN
+  SELECT @BoxNm = SUBSTRING(@InstanceName, 1, @Sep - 1), @InstNm = SUBSTRING(@InstanceName, @Sep + 1, (LEN(@InstanceName) - @Sep))
+  END
+ELSE
+  BEGIN
+  SELECT @BoxNm = @InstanceName, @InstNm = 'MSSQLSERVER'
+  END
+
+SELECT CONVERT(char(10), s.[PerfDate], 101) as PerfDate
+      ,CONVERT(char(8), s.[PerfDate], 108) as PerfTime
+      ,s.[PctProc]
+      ,i.[BatReqSec]
+      ,i.[BufCchHit]
+      ,i.[PgLifeExp]
+FROM [Analysis].[ServerStats] s
+INNER JOIN [Analysis].[InstanceStats] i
+ON s.[ServerID] = i.[ServerID]
+WHERE s.ServerNm = @BoxNm
+AND i.ServerNm = @BoxNm
+AND i.InstanceNm = @InstNm
+AND s.[PerfDate] > DATEADD(dd, -35, GETDATE())
+ORDER BY CONVERT(Date,s.[PerfDate]) DESC, PerfTime ASC]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[selComparativeAnalysisReport].[@InstanceName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[ServerID]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[ServerID]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[char]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[PerfDate]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[char]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[PctProc]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[BatReqSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[BufCchHit]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[PgLifeExp]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[InstanceNm]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[date]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="Parameters">
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[selComparativeAnalysisReport].[@InstanceName]">
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="50" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="2" />
+				<Property Name="Length" Value="950" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="&#xD;&#xA;CREATE PROCEDURE [Analysis].[selComparativeAnalysisReport] (@InstanceName varchar(50))&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[selPerformanceAnalysisReport]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+SET NOCOUNT ON
+
+DECLARE @Sep INT, @BoxNm VARCHAR(50), @InstNm VARCHAR(50)
+
+SELECT @Sep = CHARINDEX('\', @InstanceName)
+
+IF @Sep > 0
+  BEGIN
+  SELECT @BoxNm = SUBSTRING(@InstanceName, 1, @Sep - 1), @InstNm = SUBSTRING(@InstanceName, @Sep + 1, (LEN(@InstanceName) - @Sep))
+  END
+ELSE
+  BEGIN
+  SELECT @BoxNm = @InstanceName, @InstNm = 'MSSQLSERVER'
+  END
+
+SELECT CONVERT(char(8), s.[PerfDate], 108) as PerfTime
+      ,s.[ServerNm]
+      ,i.[InstanceNm]
+      ,s.[PctProc]
+      ,s.[Memory]
+      ,s.[PgFilUse]
+      ,s.[DskSecRd]
+      ,s.[DskSecWrt]
+      ,s.[ProcQueLn]
+      ,i.[FwdRecSec]
+      ,i.[PgSpltSec]
+      ,i.[BufCchHit]
+      ,i.[PgLifeExp]
+      ,i.[LogGrwths]
+      ,i.[BlkProcs]
+      ,i.[BatReqSec]
+      ,i.[SQLCompSec]
+      ,i.[SQLRcmpSec]
+FROM [Analysis].[ServerStats] s
+INNER JOIN [Analysis].[InstanceStats] i
+ON s.[ServerID] = i.[ServerID]
+WHERE s.ServerNm = @BoxNm
+AND i.ServerNm = @BoxNm
+AND i.InstanceNm = @InstNm
+AND s.[PerfDate] BETWEEN @PerfDate AND DATEADD(DAY,1,@PerfDate)]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[int]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[varchar]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[selPerformanceAnalysisReport].[@InstanceName]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[ServerID]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[ServerID]" />
+				</Entry>
+				<Entry>
+					<References ExternalSource="BuiltIns" Name="[char]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[PerfDate]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[InstanceNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[PctProc]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[Memory]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[PgFilUse]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[DskSecRd]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[DskSecWrt]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[ServerStats].[ProcQueLn]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[FwdRecSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[PgSpltSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[BufCchHit]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[PgLifeExp]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[LogGrwths]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[BlkProcs]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[BatReqSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[SQLCompSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[SQLRcmpSec]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[InstanceStats].[ServerNm]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[selPerformanceAnalysisReport].[@PerfDate]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="Parameters">
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[selPerformanceAnalysisReport].[@InstanceName]">
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="50" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSubroutineParameter" Name="[Analysis].[selPerformanceAnalysisReport].[@PerfDate]">
+						<Relationship Name="Type">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="2" />
+				<Property Name="Length" Value="1156" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="&#xD;&#xA;CREATE PROCEDURE [Analysis].[selPerformanceAnalysisReport] (@InstanceName varchar(50), @PerfDate DATETIME)&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlProcedure" Name="[Analysis].[selServer]">
+			<Property Name="BodyScript">
+				<Value><![CDATA[
+SET NOCOUNT ON
+
+SELECT [ServerNm]
+FROM [Analysis].[Server]
+ORDER BY [ServerNm]]]></Value>
+			</Property>
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="BodyDependencies">
+				<Entry>
+					<References Name="[Analysis].[Server]" />
+				</Entry>
+				<Entry>
+					<References Name="[Analysis].[Server].[ServerNm]" />
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<Annotation Type="SysCommentsObjectAnnotation">
+				<Property Name="CreateOffset" Value="4" />
+				<Property Name="Length" Value="131" />
+				<Property Name="StartLine" Value="1" />
+				<Property Name="StartColumn" Value="1" />
+				<Property Name="HeaderContents" Value="&#xD;&#xA;&#xD;&#xA;CREATE PROCEDURE [Analysis].[selServer]&#xD;&#xA;AS" />
+			</Annotation>
+		</Element>
+		<Element Type="SqlTable" Name="[Analysis].[Server]">
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="Columns">
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[Server].[ServerID]">
+						<Property Name="IsNullable" Value="False" />
+						<Property Name="IsIdentity" Value="True" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[Server].[ServerNm]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="50" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<AttachedAnnotation Disambiguator="13" />
+		</Element>
+		<Element Type="SqlTable" Name="[Analysis].[ServerStats]">
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Relationship Name="Columns">
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[ServerStats].[ServerID]">
+						<Property Name="IsNullable" Value="False" />
+						<Property Name="IsIdentity" Value="True" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[ServerStats].[ServerNm]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Length" Value="30" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[varchar]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[ServerStats].[PerfDate]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[datetime]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[ServerStats].[PctProc]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[ServerStats].[Memory]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[bigint]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[ServerStats].[PgFilUse]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[ServerStats].[DskSecRd]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[ServerStats].[DskSecWrt]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Property Name="Scale" Value="4" />
+									<Property Name="Precision" Value="10" />
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[decimal]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+				<Entry>
+					<Element Type="SqlSimpleColumn" Name="[Analysis].[ServerStats].[ProcQueLn]">
+						<Property Name="IsNullable" Value="False" />
+						<Relationship Name="TypeSpecifier">
+							<Entry>
+								<Element Type="SqlTypeSpecifier">
+									<Relationship Name="Type">
+										<Entry>
+											<References ExternalSource="BuiltIns" Name="[int]" />
+										</Entry>
+									</Relationship>
+								</Element>
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="Schema">
+				<Entry>
+					<References Name="[Analysis]" />
+				</Entry>
+			</Relationship>
+			<AttachedAnnotation Disambiguator="14" />
+		</Element>
+		<Element Type="SqlIndex" Name="[Analysis].[ServerStats].[IX_ServerStats_PerfDate]">
+			<Relationship Name="ColumnSpecifications">
+				<Entry>
+					<Element Type="SqlIndexedColumnSpecification">
+						<Relationship Name="Column">
+							<Entry>
+								<References Name="[Analysis].[ServerStats].[PerfDate]" />
+							</Entry>
+						</Relationship>
+					</Element>
+				</Entry>
+			</Relationship>
+			<Relationship Name="IndexedObject">
+				<Entry>
+					<References Name="[Analysis].[ServerStats]" />
+				</Entry>
+			</Relationship>
+		</Element>
+		<Element Type="SqlLogin" Name="[PSuser]">
+			<Property Name="Password" Value="LoveTheSql123!" />
+			<Annotation Type="GloballyScoped" />
+		</Element>
+		<Element Type="SqlUser" Name="[PSuser]" Disambiguator="5">
+			<Property Name="LoginIdentifierScript">
+				<Value><![CDATA[[PSuser]]]></Value>
+			</Property>
+			<Property Name="AuthenticationType" Value="1" />
+			<Relationship Name="Login">
+				<Entry>
+					<References Name="[PSuser]" />
+				</Entry>
+			</Relationship>
+		</Element>
+		<Element Type="SqlLogin" Name="[SSISuser]">
+			<Property Name="Password" Value="LoveTheSql123!" />
+			<Annotation Type="GloballyScoped" />
+		</Element>
+		<Element Type="SqlUser" Name="[SSISuser]" Disambiguator="4">
+			<Property Name="LoginIdentifierScript">
+				<Value><![CDATA[[SSISuser]]]></Value>
+			</Property>
+			<Property Name="AuthenticationType" Value="1" />
+			<Relationship Name="Login">
+				<Entry>
+					<References Name="[SSISuser]" />
+				</Entry>
+			</Relationship>
+		</Element>
+		<Element Type="SqlLogin" Name="[SSRSuser]">
+			<Property Name="Password" Value="LoveTheSql123!" />
+			<Annotation Type="GloballyScoped" />
+		</Element>
+		<Element Type="SqlUser" Name="[SSRSuser]" Disambiguator="3">
+			<Property Name="LoginIdentifierScript">
+				<Value><![CDATA[[SSRSuser]]]></Value>
+			</Property>
+			<Property Name="AuthenticationType" Value="1" />
+			<Relationship Name="Login">
+				<Entry>
+					<References Name="[SSRSuser]" />
+				</Entry>
+			</Relationship>
+		</Element>
+	</Model>
+</DataSchemaModel>

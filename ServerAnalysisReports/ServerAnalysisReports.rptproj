@@ -134,6 +134,14 @@
       <Name>subMemorySqlReCompilations.rdl</Name>
       <FullPath>subMemorySqlReCompilations.rdl</FullPath>
     </ProjectItem>
+    <ProjectItem>
+      <Name>Compiles.rdl</Name>
+      <FullPath>Compiles.rdl</FullPath>
+    </ProjectItem>
+    <ProjectItem>
+      <Name>LongestRunningQueryByDay.rdl</Name>
+      <FullPath>LongestRunningQueryByDay.rdl</FullPath>
+    </ProjectItem>
   </Reports>
   <Configurations>
     <Configuration>

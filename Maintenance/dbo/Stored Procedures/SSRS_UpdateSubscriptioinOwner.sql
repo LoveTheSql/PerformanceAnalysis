@@ -6,7 +6,7 @@ AS
 BEGIN
 
 	DECLARE @NewUserID UNIQUEIDENTIFIER;
-	SELECT @NewUserID=UserID FROM ReportServer.dbo.Users WHERE UserName = 'ORLANDO\S-SSRSReports';
+	SELECT @NewUserID=UserID FROM ReportServer.dbo.Users WHERE UserName = 'MyDomain\AD-SSRS-User';
 
 	UPDATE ReportServer.dbo.Subscriptions 
 	SET OwnerID = @NewUserID 

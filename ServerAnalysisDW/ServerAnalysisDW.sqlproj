@@ -121,5 +121,8 @@
     <Build Include="Analysis\Stored Procedures\AgentFailuresGet.sql" />
     <Build Include="Security\cert_keyAnalysis.sql" />
     <Build Include="Security\key_Analysis.sql" />
+    <Build Include="Analysis\Stored Procedures\QueryElapsedTimeGetDaily.sql" />
+    <Build Include="Analysis\Stored Procedures\PLE.sql" />
+    <Build Include="Analysis\Stored Procedures\Compiles.sql" />
   </ItemGroup>
 </Project>

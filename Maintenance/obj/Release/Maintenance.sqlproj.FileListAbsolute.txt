@@ -1,0 +1,9 @@
+M:\LoveTheSql\Repository\PerformanceAnalysis\Maintenance\bin\Release\Maintenance.dacpac
+M:\LoveTheSql\Repository\PerformanceAnalysis\Maintenance\bin\Release\Maintenance.dll
+M:\LoveTheSql\Repository\PerformanceAnalysis\Maintenance\bin\Release\Maintenance.pdb
+M:\LoveTheSql\Repository\PerformanceAnalysis\Maintenance\obj\Release\Maintenance.dll
+M:\LoveTheSql\Repository\PerformanceAnalysis\Maintenance\obj\Release\Maintenance.pdb
+M:\LoveTheSql\Repository\PerformanceAnalysis\Maintenance\obj\Release\Model.xml
+M:\LoveTheSql\Repository\PerformanceAnalysis\Maintenance\obj\Release\refactor.xml
+M:\LoveTheSql\Repository\PerformanceAnalysis\Maintenance\obj\Release\postdeploy.sql
+M:\LoveTheSql\Repository\PerformanceAnalysis\Maintenance\obj\Release\predeploy.sql

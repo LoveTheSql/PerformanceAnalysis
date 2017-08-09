@@ -1,0 +1,941 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="ServerAnalysisDW">
+      <DataSourceReference>ServerAnalysisDW</DataSourceReference>
+      <rd:SecurityType>None</rd:SecurityType>
+      <rd:DataSourceID>974a7cb0-9b0f-4264-860e-44703c755865</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="InstanceList">
+      <SharedDataSet>
+        <SharedDataSetReference>InstanceListGet</SharedDataSetReference>
+      </SharedDataSet>
+      <Fields>
+        <Field Name="ServerNm">
+          <DataField>ServerNm</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="connString">
+          <DataField>connString</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Compiles">
+      <Query>
+        <DataSourceName>ServerAnalysisDW</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@ServerName">
+            <Value>=Parameters!ServerName.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@EndDate">
+            <Value>=Parameters!EndDate.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@MinutesBack">
+            <Value>=Parameters!MinutesBack.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandType>StoredProcedure</CommandType>
+        <CommandText>Analysis.Compiles</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="SQLcompSec">
+          <DataField>SQLcompSec</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="BatReqSec">
+          <DataField>BatReqSec</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="SQLRcmpSec">
+          <DataField>SQLRcmpSec</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="CompileRatio">
+          <DataField>CompileRatio</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ReCompileRatio">
+          <DataField>ReCompileRatio</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Subreport Name="SqlCompilations">
+            <ReportName>subMemorySqlCompilations</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <Top>3.63334in</Top>
+            <Height>2.43333in</Height>
+            <Width>6.48611in</Width>
+            <Style>
+              <Border>
+                <Color>CornflowerBlue</Color>
+                <Style>Solid</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <Textbox Name="Textbox1">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>SQL Compiles Report</Value>
+                    <Style>
+                      <FontSize>20pt</FontSize>
+                      <FontWeight>Bold</FontWeight>
+                      <Color>#009a44</Color>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox1</rd:DefaultName>
+            <Top>0.57778in</Top>
+            <Height>0.41667in</Height>
+            <Width>4.84375in</Width>
+            <ZIndex>1</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <GaugePanel Name="GaugePanel2">
+            <RadialGauges>
+              <RadialGauge Name="RadialGauge1">
+                <PivotY>85</PivotY>
+                <GaugeScales>
+                  <RadialScale Name="RadialScale1">
+                    <Radius>55</Radius>
+                    <StartAngle>90</StartAngle>
+                    <SweepAngle>180</SweepAngle>
+                    <GaugePointers>
+                      <RadialPointer Name="RadialPointer1">
+                        <Type>Bar</Type>
+                        <PointerCap>
+                          <Style>
+                            <BackgroundColor>White</BackgroundColor>
+                            <BackgroundGradientType>DiagonalLeft</BackgroundGradientType>
+                            <BackgroundGradientEndColor>DimGray</BackgroundGradientEndColor>
+                            <BackgroundHatchType>None</BackgroundHatchType>
+                          </Style>
+                          <CapImage>
+                            <OffsetX>0pt</OffsetX>
+                            <OffsetY>0pt</OffsetY>
+                            <Source>External</Source>
+                            <Value />
+                          </CapImage>
+                          <OnTop>true</OnTop>
+                          <CapStyle>RoundedWithWideIndentation</CapStyle>
+                          <Width>33</Width>
+                        </PointerCap>
+                        <NeedleStyle>Tapered</NeedleStyle>
+                        <Style>
+                          <Border>
+                            <Style>None</Style>
+                          </Border>
+                          <BackgroundColor>CornflowerBlue</BackgroundColor>
+                          <BackgroundGradientType>LeftRight</BackgroundGradientType>
+                          <BackgroundGradientEndColor>Orange</BackgroundGradientEndColor>
+                          <BackgroundHatchType>None</BackgroundHatchType>
+                          <ShadowOffset>0pt</ShadowOffset>
+                        </Style>
+                        <GaugeInputValue>
+                          <Value>=Sum(Fields!CompileRatio.Value)</Value>
+                          <Multiplier>1</Multiplier>
+                        </GaugeInputValue>
+                        <PointerImage>
+                          <OffsetX>0pt</OffsetX>
+                          <OffsetY>0pt</OffsetY>
+                          <Source>External</Source>
+                          <Value />
+                        </PointerImage>
+                        <MarkerLength>25</MarkerLength>
+                        <MarkerStyle>Wedge</MarkerStyle>
+                        <Placement>Cross</Placement>
+                        <Width>30</Width>
+                      </RadialPointer>
+                    </GaugePointers>
+                    <Style>
+                      <Border>
+                        <Style>None</Style>
+                      </Border>
+                      <BackgroundColor>LightGrey</BackgroundColor>
+                      <BackgroundGradientType>None</BackgroundGradientType>
+                      <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+                      <BackgroundHatchType>None</BackgroundHatchType>
+                      <ShadowOffset>0pt</ShadowOffset>
+                    </Style>
+                    <Interval>10</Interval>
+                    <IntervalOffset>NaN</IntervalOffset>
+                    <MaximumValue>
+                      <Value>50</Value>
+                      <Multiplier>1</Multiplier>
+                    </MaximumValue>
+                    <MinimumValue>
+                      <Value>0</Value>
+                      <Multiplier>1</Multiplier>
+                    </MinimumValue>
+                    <GaugeMajorTickMarks>
+                      <Interval>NaN</Interval>
+                      <IntervalOffset>NaN</IntervalOffset>
+                      <Style>
+                        <Border>
+                          <Color>DimGray</Color>
+                          <Style>Solid</Style>
+                        </Border>
+                        <BackgroundColor>WhiteSmoke</BackgroundColor>
+                      </Style>
+                      <Placement>Cross</Placement>
+                      <TickMarkImage>
+                        <Source>External</Source>
+                        <Value />
+                      </TickMarkImage>
+                      <Length>14</Length>
+                      <Width>8</Width>
+                      <Shape>Trapezoid</Shape>
+                      <Hidden>true</Hidden>
+                    </GaugeMajorTickMarks>
+                    <GaugeMinorTickMarks>
+                      <Interval>NaN</Interval>
+                      <IntervalOffset>NaN</IntervalOffset>
+                      <Style>
+                        <Border>
+                          <Color>DimGray</Color>
+                          <Style>Solid</Style>
+                        </Border>
+                        <BackgroundColor>WhiteSmoke</BackgroundColor>
+                      </Style>
+                      <Placement>Cross</Placement>
+                      <TickMarkImage>
+                        <Source>External</Source>
+                        <Value />
+                      </TickMarkImage>
+                      <Length>8</Length>
+                      <Width>3</Width>
+                      <Hidden>true</Hidden>
+                    </GaugeMinorTickMarks>
+                    <MaximumPin>
+                      <PinLabel>
+                        <Style>
+                          <FontSize>12pt</FontSize>
+                        </Style>
+                        <DistanceFromScale>0</DistanceFromScale>
+                      </PinLabel>
+                      <Style>
+                        <Border>
+                          <Color>DimGray</Color>
+                          <Style>Solid</Style>
+                        </Border>
+                        <BackgroundColor>WhiteSmoke</BackgroundColor>
+                      </Style>
+                      <Placement>Cross</Placement>
+                      <TickMarkImage>
+                        <Source>External</Source>
+                        <Value />
+                      </TickMarkImage>
+                      <Length>6</Length>
+                      <Width>6</Width>
+                      <Shape>Circle</Shape>
+                    </MaximumPin>
+                    <MinimumPin>
+                      <PinLabel>
+                        <Style>
+                          <FontSize>12pt</FontSize>
+                        </Style>
+                        <DistanceFromScale>0</DistanceFromScale>
+                      </PinLabel>
+                      <Style>
+                        <Border>
+                          <Color>DimGray</Color>
+                          <Style>Solid</Style>
+                        </Border>
+                        <BackgroundColor>WhiteSmoke</BackgroundColor>
+                      </Style>
+                      <Placement>Cross</Placement>
+                      <TickMarkImage>
+                        <Source>External</Source>
+                        <Value />
+                      </TickMarkImage>
+                      <Length>6</Length>
+                      <Width>6</Width>
+                      <Shape>Circle</Shape>
+                    </MinimumPin>
+                    <ScaleLabels>
+                      <Style>
+                        <FontSize>14pt</FontSize>
+                      </Style>
+                      <Interval>NaN</Interval>
+                      <IntervalOffset>NaN</IntervalOffset>
+                      <DistanceFromScale>0</DistanceFromScale>
+                      <Placement>Outside</Placement>
+                      <ShowEndLabels>true</ShowEndLabels>
+                      <UseFontPercent>true</UseFontPercent>
+                    </ScaleLabels>
+                    <Width>30</Width>
+                  </RadialScale>
+                </GaugeScales>
+                <BackFrame>
+                  <Style>
+                    <Border>
+                      <Style>None</Style>
+                    </Border>
+                    <BackgroundColor>WhiteSmoke</BackgroundColor>
+                    <BackgroundGradientType>None</BackgroundGradientType>
+                    <BackgroundGradientEndColor>Gainsboro</BackgroundGradientEndColor>
+                    <BackgroundHatchType>None</BackgroundHatchType>
+                    <ShadowOffset>0pt</ShadowOffset>
+                  </Style>
+                  <FrameShape>CustomSemiCircularN1</FrameShape>
+                  <FrameBackground>
+                    <Style>
+                      <BackgroundColor>WhiteSmoke</BackgroundColor>
+                      <BackgroundGradientType>DiagonalLeft</BackgroundGradientType>
+                      <BackgroundGradientEndColor>Gray</BackgroundGradientEndColor>
+                      <BackgroundHatchType>None</BackgroundHatchType>
+                    </Style>
+                  </FrameBackground>
+                  <FrameImage>
+                    <Source>External</Source>
+                    <Value />
+                  </FrameImage>
+                </BackFrame>
+                <ClipContent>true</ClipContent>
+                <TopImage>
+                  <Source>External</Source>
+                  <Value />
+                </TopImage>
+                <AspectRatio>1.48</AspectRatio>
+                <Height>100</Height>
+                <Width>100</Width>
+              </RadialGauge>
+            </RadialGauges>
+            <GaugeLabels>
+              <GaugeLabel Name="GaugeLabel1">
+                <Text>=Sum(Fields!CompileRatio.Value, "Compiles")</Text>
+                <TextShadowOffset>0pt</TextShadowOffset>
+                <UseFontPercent>true</UseFontPercent>
+                <Style>
+                  <Border>
+                    <Style>None</Style>
+                  </Border>
+                  <BackgroundColor>#00ffffff</BackgroundColor>
+                  <BackgroundGradientType>None</BackgroundGradientType>
+                  <BackgroundGradientEndColor>#00ffffff</BackgroundGradientEndColor>
+                  <FontFamily>Segoe UI Light</FontFamily>
+                  <FontSize>14pt</FontSize>
+                  <TextAlign>Center</TextAlign>
+                  <VerticalAlign>Middle</VerticalAlign>
+                  <Color>#333333</Color>
+                  <ShadowOffset>0pt</ShadowOffset>
+                </Style>
+                <Top>50</Top>
+                <Left>30</Left>
+                <Height>40</Height>
+                <Width>40</Width>
+                <ParentItem>RadialGauges.RadialGauge1</ParentItem>
+              </GaugeLabel>
+            </GaugeLabels>
+            <AutoLayout>true</AutoLayout>
+            <BackFrame>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <BackgroundColor>Gainsboro</BackgroundColor>
+                <BackgroundGradientType>None</BackgroundGradientType>
+                <BackgroundGradientEndColor>Gray</BackgroundGradientEndColor>
+                <BackgroundHatchType>None</BackgroundHatchType>
+                <ShadowOffset>0pt</ShadowOffset>
+              </Style>
+              <FrameBackground>
+                <Style>
+                  <BackgroundColor>Silver</BackgroundColor>
+                  <BackgroundGradientType>DiagonalLeft</BackgroundGradientType>
+                  <BackgroundGradientEndColor>Gray</BackgroundGradientEndColor>
+                  <BackgroundHatchType>None</BackgroundHatchType>
+                </Style>
+              </FrameBackground>
+              <FrameImage>
+                <Source>External</Source>
+                <Value />
+              </FrameImage>
+            </BackFrame>
+            <TopImage>
+              <Source>External</Source>
+              <Value />
+            </TopImage>
+            <DataSetName>Compiles</DataSetName>
+            <Top>1.00834in</Top>
+            <Height>2in</Height>
+            <Width>3.125in</Width>
+            <ZIndex>2</ZIndex>
+            <DataElementName>Pcnt</DataElementName>
+            <Style>
+              <Border>
+                <Color>CornflowerBlue</Color>
+                <Style>Solid</Style>
+              </Border>
+              <BackgroundColor>White</BackgroundColor>
+            </Style>
+          </GaugePanel>
+          <Textbox Name="Textbox3">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>COMPILE RATIO: Compiles per batch request.</Value>
+                    <Style />
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>GOAL: Above 10. </Value>
+                    <Style />
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox3</rd:DefaultName>
+            <Top>3.07778in</Top>
+            <Height>0.425in</Height>
+            <Width>3.125in</Width>
+            <ZIndex>3</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox4">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>RECOMPILE RATIO: This is the percentage of compiles that are a recompile.</Value>
+                    <Style />
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>GOAL: Less than 10%</Value>
+                    <Style />
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox3</rd:DefaultName>
+            <Top>3.07778in</Top>
+            <Left>3.36111in</Left>
+            <Height>0.55556in</Height>
+            <Width>3.125in</Width>
+            <ZIndex>4</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Subreport Name="SqlReCompilations">
+            <ReportName>subMemorySqlReCompilations</ReportName>
+            <Parameters>
+              <Parameter Name="ServerName">
+                <Value>=Parameters!ServerName.Value</Value>
+              </Parameter>
+              <Parameter Name="EndDate">
+                <Value>=Parameters!EndDate.Value</Value>
+              </Parameter>
+              <Parameter Name="MinutesBack">
+                <Value>=Parameters!MinutesBack.Value</Value>
+              </Parameter>
+            </Parameters>
+            <KeepTogether>true</KeepTogether>
+            <Top>6.67223in</Top>
+            <Height>2.45in</Height>
+            <Width>6.48611in</Width>
+            <ZIndex>5</ZIndex>
+            <Style>
+              <Border>
+                <Color>CornflowerBlue</Color>
+                <Style>Solid</Style>
+              </Border>
+            </Style>
+          </Subreport>
+          <GaugePanel Name="GaugePanel3">
+            <RadialGauges>
+              <RadialGauge Name="RadialGauge1">
+                <PivotY>85</PivotY>
+                <GaugeScales>
+                  <RadialScale Name="RadialScale1">
+                    <Radius>55</Radius>
+                    <StartAngle>90</StartAngle>
+                    <SweepAngle>180</SweepAngle>
+                    <GaugePointers>
+                      <RadialPointer Name="RadialPointer1">
+                        <Type>Bar</Type>
+                        <PointerCap>
+                          <Style>
+                            <BackgroundColor>White</BackgroundColor>
+                            <BackgroundGradientType>DiagonalLeft</BackgroundGradientType>
+                            <BackgroundGradientEndColor>DimGray</BackgroundGradientEndColor>
+                            <BackgroundHatchType>None</BackgroundHatchType>
+                          </Style>
+                          <CapImage>
+                            <OffsetX>0pt</OffsetX>
+                            <OffsetY>0pt</OffsetY>
+                            <Source>External</Source>
+                            <Value />
+                          </CapImage>
+                          <OnTop>true</OnTop>
+                          <CapStyle>RoundedWithWideIndentation</CapStyle>
+                          <Width>33</Width>
+                        </PointerCap>
+                        <NeedleStyle>Tapered</NeedleStyle>
+                        <Style>
+                          <Border>
+                            <Style>None</Style>
+                          </Border>
+                          <BackgroundColor>CornflowerBlue</BackgroundColor>
+                          <BackgroundGradientType>LeftRight</BackgroundGradientType>
+                          <BackgroundGradientEndColor>Orange</BackgroundGradientEndColor>
+                          <BackgroundHatchType>None</BackgroundHatchType>
+                          <ShadowOffset>0pt</ShadowOffset>
+                        </Style>
+                        <GaugeInputValue>
+                          <Value>=Sum(Fields!ReCompileRatio.Value)</Value>
+                          <Multiplier>1</Multiplier>
+                        </GaugeInputValue>
+                        <PointerImage>
+                          <OffsetX>0pt</OffsetX>
+                          <OffsetY>0pt</OffsetY>
+                          <Source>External</Source>
+                          <Value />
+                        </PointerImage>
+                        <MarkerLength>25</MarkerLength>
+                        <MarkerStyle>Wedge</MarkerStyle>
+                        <Placement>Cross</Placement>
+                        <Width>30</Width>
+                      </RadialPointer>
+                    </GaugePointers>
+                    <Style>
+                      <Border>
+                        <Style>None</Style>
+                      </Border>
+                      <BackgroundColor>LightGrey</BackgroundColor>
+                      <BackgroundGradientType>None</BackgroundGradientType>
+                      <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+                      <BackgroundHatchType>None</BackgroundHatchType>
+                      <ShadowOffset>0pt</ShadowOffset>
+                    </Style>
+                    <Interval>25</Interval>
+                    <IntervalOffset>NaN</IntervalOffset>
+                    <MaximumValue>
+                      <Value>100</Value>
+                      <Multiplier>1</Multiplier>
+                    </MaximumValue>
+                    <MinimumValue>
+                      <Value>0</Value>
+                      <Multiplier>1</Multiplier>
+                    </MinimumValue>
+                    <GaugeMajorTickMarks>
+                      <Interval>NaN</Interval>
+                      <IntervalOffset>NaN</IntervalOffset>
+                      <Style>
+                        <Border>
+                          <Color>DimGray</Color>
+                          <Style>Solid</Style>
+                        </Border>
+                        <BackgroundColor>WhiteSmoke</BackgroundColor>
+                      </Style>
+                      <Placement>Cross</Placement>
+                      <TickMarkImage>
+                        <Source>External</Source>
+                        <Value />
+                      </TickMarkImage>
+                      <Length>14</Length>
+                      <Width>8</Width>
+                      <Shape>Trapezoid</Shape>
+                      <Hidden>true</Hidden>
+                    </GaugeMajorTickMarks>
+                    <GaugeMinorTickMarks>
+                      <Interval>NaN</Interval>
+                      <IntervalOffset>NaN</IntervalOffset>
+                      <Style>
+                        <Border>
+                          <Color>DimGray</Color>
+                          <Style>Solid</Style>
+                        </Border>
+                        <BackgroundColor>WhiteSmoke</BackgroundColor>
+                      </Style>
+                      <Placement>Cross</Placement>
+                      <TickMarkImage>
+                        <Source>External</Source>
+                        <Value />
+                      </TickMarkImage>
+                      <Length>8</Length>
+                      <Width>3</Width>
+                      <Hidden>true</Hidden>
+                    </GaugeMinorTickMarks>
+                    <MaximumPin>
+                      <PinLabel>
+                        <Style>
+                          <FontSize>12pt</FontSize>
+                        </Style>
+                        <DistanceFromScale>0</DistanceFromScale>
+                      </PinLabel>
+                      <Style>
+                        <Border>
+                          <Color>DimGray</Color>
+                          <Style>Solid</Style>
+                        </Border>
+                        <BackgroundColor>WhiteSmoke</BackgroundColor>
+                      </Style>
+                      <Placement>Cross</Placement>
+                      <TickMarkImage>
+                        <Source>External</Source>
+                        <Value />
+                      </TickMarkImage>
+                      <Length>6</Length>
+                      <Width>6</Width>
+                      <Shape>Circle</Shape>
+                    </MaximumPin>
+                    <MinimumPin>
+                      <PinLabel>
+                        <Style>
+                          <FontSize>12pt</FontSize>
+                        </Style>
+                        <DistanceFromScale>0</DistanceFromScale>
+                      </PinLabel>
+                      <Style>
+                        <Border>
+                          <Color>DimGray</Color>
+                          <Style>Solid</Style>
+                        </Border>
+                        <BackgroundColor>WhiteSmoke</BackgroundColor>
+                      </Style>
+                      <Placement>Cross</Placement>
+                      <TickMarkImage>
+                        <Source>External</Source>
+                        <Value />
+                      </TickMarkImage>
+                      <Length>6</Length>
+                      <Width>6</Width>
+                      <Shape>Circle</Shape>
+                    </MinimumPin>
+                    <ScaleLabels>
+                      <Style>
+                        <FontSize>14pt</FontSize>
+                      </Style>
+                      <Interval>NaN</Interval>
+                      <IntervalOffset>NaN</IntervalOffset>
+                      <DistanceFromScale>0</DistanceFromScale>
+                      <Placement>Outside</Placement>
+                      <ShowEndLabels>true</ShowEndLabels>
+                      <UseFontPercent>true</UseFontPercent>
+                    </ScaleLabels>
+                    <Width>30</Width>
+                  </RadialScale>
+                </GaugeScales>
+                <BackFrame>
+                  <Style>
+                    <Border>
+                      <Style>None</Style>
+                    </Border>
+                    <BackgroundColor>WhiteSmoke</BackgroundColor>
+                    <BackgroundGradientType>None</BackgroundGradientType>
+                    <BackgroundGradientEndColor>Gainsboro</BackgroundGradientEndColor>
+                    <BackgroundHatchType>None</BackgroundHatchType>
+                    <ShadowOffset>0pt</ShadowOffset>
+                  </Style>
+                  <FrameShape>CustomSemiCircularN1</FrameShape>
+                  <FrameBackground>
+                    <Style>
+                      <BackgroundColor>WhiteSmoke</BackgroundColor>
+                      <BackgroundGradientType>DiagonalLeft</BackgroundGradientType>
+                      <BackgroundGradientEndColor>Gray</BackgroundGradientEndColor>
+                      <BackgroundHatchType>None</BackgroundHatchType>
+                    </Style>
+                  </FrameBackground>
+                  <FrameImage>
+                    <Source>External</Source>
+                    <Value />
+                  </FrameImage>
+                </BackFrame>
+                <ClipContent>true</ClipContent>
+                <TopImage>
+                  <Source>External</Source>
+                  <Value />
+                </TopImage>
+                <AspectRatio>1.48</AspectRatio>
+                <Height>100</Height>
+                <Width>100</Width>
+              </RadialGauge>
+            </RadialGauges>
+            <GaugeLabels>
+              <GaugeLabel Name="GaugeLabel1">
+                <Text>=Sum(Fields!ReCompileRatio.Value, "Compiles")</Text>
+                <TextShadowOffset>0pt</TextShadowOffset>
+                <UseFontPercent>true</UseFontPercent>
+                <Style>
+                  <Border>
+                    <Style>None</Style>
+                  </Border>
+                  <BackgroundColor>#00ffffff</BackgroundColor>
+                  <BackgroundGradientType>None</BackgroundGradientType>
+                  <BackgroundGradientEndColor>#00ffffff</BackgroundGradientEndColor>
+                  <FontFamily>Segoe UI Light</FontFamily>
+                  <FontSize>14pt</FontSize>
+                  <TextAlign>Center</TextAlign>
+                  <VerticalAlign>Middle</VerticalAlign>
+                  <Color>#333333</Color>
+                  <ShadowOffset>0pt</ShadowOffset>
+                </Style>
+                <Top>50</Top>
+                <Left>30</Left>
+                <Height>40</Height>
+                <Width>40</Width>
+                <ParentItem>RadialGauges.RadialGauge1</ParentItem>
+              </GaugeLabel>
+            </GaugeLabels>
+            <AutoLayout>true</AutoLayout>
+            <BackFrame>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <BackgroundColor>Gainsboro</BackgroundColor>
+                <BackgroundGradientType>None</BackgroundGradientType>
+                <BackgroundGradientEndColor>Gray</BackgroundGradientEndColor>
+                <BackgroundHatchType>None</BackgroundHatchType>
+                <ShadowOffset>0pt</ShadowOffset>
+              </Style>
+              <FrameBackground>
+                <Style>
+                  <BackgroundColor>Silver</BackgroundColor>
+                  <BackgroundGradientType>DiagonalLeft</BackgroundGradientType>
+                  <BackgroundGradientEndColor>Gray</BackgroundGradientEndColor>
+                  <BackgroundHatchType>None</BackgroundHatchType>
+                </Style>
+              </FrameBackground>
+              <FrameImage>
+                <Source>External</Source>
+                <Value />
+              </FrameImage>
+            </BackFrame>
+            <TopImage>
+              <Source>External</Source>
+              <Value />
+            </TopImage>
+            <DataSetName>Compiles</DataSetName>
+            <Top>1.00834in</Top>
+            <Left>3.36111in</Left>
+            <Height>2in</Height>
+            <Width>3.125in</Width>
+            <ZIndex>6</ZIndex>
+            <DataElementName>Pcnt</DataElementName>
+            <Style>
+              <Border>
+                <Color>CornflowerBlue</Color>
+                <Style>Solid</Style>
+              </Border>
+              <BackgroundColor>White</BackgroundColor>
+            </Style>
+          </GaugePanel>
+          <Textbox Name="Textbox5">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>These are queries that have to be compiled. They typically include all adHoc quereis and stored procedures where a recompile is required.</Value>
+                    <Style />
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox3</rd:DefaultName>
+            <Top>6.21111in</Top>
+            <Height>0.39167in</Height>
+            <Width>6.48611in</Width>
+            <ZIndex>7</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox6">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>These are cached plans that are recompiled at runtime. Typically these are stored procedures where the plan in memory cannot be used.</Value>
+                    <Style />
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox3</rd:DefaultName>
+            <Top>9.25in</Top>
+            <Height>0.39167in</Height>
+            <Width>6.48611in</Width>
+            <ZIndex>8</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <Height>9.74444in</Height>
+        <Style />
+      </Body>
+      <Width>10.1361in</Width>
+      <Page>
+        <LeftMargin>1in</LeftMargin>
+        <RightMargin>1in</RightMargin>
+        <TopMargin>1in</TopMargin>
+        <BottomMargin>1in</BottomMargin>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="ServerName">
+      <DataType>String</DataType>
+      <Prompt>Server name</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>InstanceList</DataSetName>
+          <ValueField>ServerNm</ValueField>
+          <LabelField>ServerNm</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="EndDate">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=Now()</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>End Date</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="MinutesBack">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>60</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Minutes Back</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <ReportParametersLayout>
+    <GridLayoutDefinition>
+      <NumberOfColumns>2</NumberOfColumns>
+      <NumberOfRows>2</NumberOfRows>
+      <CellDefinitions>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>ServerName</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>EndDate</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>1</RowIndex>
+          <ParameterName>MinutesBack</ParameterName>
+        </CellDefinition>
+      </CellDefinitions>
+    </GridLayoutDefinition>
+  </ReportParametersLayout>
+  <EmbeddedImages>
+    <EmbeddedImage Name="CBGlogo">
+      <MIMEType>image/jpeg</MIMEType>
+      <ImageData>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</ImageData>
+    </EmbeddedImage>
+  </EmbeddedImages>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportID>79b37e29-9897-4563-adc8-d8c4b4aa5ed0</rd:ReportID>
+</Report>

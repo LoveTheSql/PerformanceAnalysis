@@ -579,11 +579,6 @@ ORDER BY 1;</CommandText>
   <ReportParameters>
     <ReportParameter Name="ServerName">
       <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>IAD-DBSQL02\INSTB</Value>
-        </Values>
-      </DefaultValue>
       <Prompt>Server Name</Prompt>
       <ValidValues>
         <DataSetReference>

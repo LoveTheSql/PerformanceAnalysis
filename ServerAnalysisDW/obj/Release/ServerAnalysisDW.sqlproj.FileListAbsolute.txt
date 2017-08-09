@@ -1,0 +1,9 @@
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysisDW\bin\Release\ServerAnalysisDW.dacpac
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysisDW\bin\Release\ServerAnalysisDW.dll
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysisDW\bin\Release\ServerAnalysisDW.pdb
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysisDW\obj\Release\Model.xml
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysisDW\obj\Release\refactor.xml
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysisDW\obj\Release\postdeploy.sql
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysisDW\obj\Release\predeploy.sql
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysisDW\obj\Release\ServerAnalysisDW.dll
+M:\LoveTheSql\Repository\PerformanceAnalysis\ServerAnalysisDW\obj\Release\ServerAnalysisDW.pdb

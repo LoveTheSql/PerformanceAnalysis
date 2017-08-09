@@ -3,8 +3,8 @@
   DTS:refId="Package"
   DTS:CreationDate="10/5/2015 1:29:07 PM"
   DTS:CreationName="Microsoft.Package"
-  DTS:CreatorComputerName="ORL-DEV-IT01"
-  DTS:CreatorName="ORLANDO\dspeight"
+  DTS:CreatorComputerName="SSRS2016"
+  DTS:CreatorName="MyDomain\dave"
   DTS:DTSID="{78DD6C8B-6AF6-42C5-B673-039EBAAE0DC9}"
   DTS:ExecutableType="Microsoft.Package"
   DTS:LastModifiedProductVersion="13.0.4001.0"
@@ -38,7 +38,7 @@
       DTS:ObjectName="connString">
       <DTS:Property
         DTS:DataType="8"
-        DTS:Name="ParameterValue">Data Source=ORL-REPORT01;Initial Catalog=ServerAnalysis;Provider=SQLNCLI11.1;Integrated Security=SSPI;</DTS:Property>
+        DTS:Name="ParameterValue">Data Source=OSSRS2016;Initial Catalog=ServerAnalysis;Provider=SQLNCLI11.1;Integrated Security=SSPI;</DTS:Property>
     </DTS:PackageParameter>
   </DTS:PackageParameters>
   <DTS:Variables>

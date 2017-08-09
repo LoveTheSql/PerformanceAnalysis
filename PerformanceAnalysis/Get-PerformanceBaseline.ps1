@@ -22,6 +22,10 @@ param(
 	[string]$destdb=$null
 	)
 
+# Uncomment next two lines for WIN SERVER 2008R2 running SQL 2012
+#Add-PSSnapin SqlServerCmdletSnapin100
+#Add-PSSnapin SqlServerProviderSnapin100
+
 $m = New-Object ('Microsoft.SqlServer.Management.Smo.WMI.ManagedComputer') $srv                              
 $inst = $m.ServerInstances | select @{Name="SrvName"; Expression={$m.Name}}, Name
 

@@ -13,6 +13,11 @@ param(
   [string]$srv=$null #'MyServerName'
   )
 
+# Uncomment next two lines for WIN SERVER 2008R2 running SQL 2012
+#Add-PSSnapin SqlServerCmdletSnapin100
+#Add-PSSnapin SqlServerProviderSnapin100
+
+# Comment out this entire section on WIN SERVER 2016 or PowerShell 5.0+
 # Load SMO assembly, and if we're running SQL 2008 DLLs load the SMOExtended and SQLWMIManagement libraries
 $v = [System.Reflection.Assembly]::LoadWithPartialName( 'Microsoft.SqlServer.SMO')
 if ((($v.FullName.Split(','))[1].Split('='))[1].Split('.')[0] -ne '9') {
@@ -33,7 +38,7 @@ Trap {
   break
   }
 
-$sqlsrv = 'MyDatabaseUsage'
+$sqlsrv = $srv
 $destdb = 'ServerAnalysis'
 
 # Collect the drive info from the specified server

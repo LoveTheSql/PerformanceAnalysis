@@ -5,6 +5,7 @@
       <DataSourceReference>ServerAnalysisDW</DataSourceReference>
       <DataSetParameters>
         <DataSetParameter Name="@Version">
+          <DefaultValue>2012</DefaultValue>
           <ReadOnly>false</ReadOnly>
           <Nullable>false</Nullable>
           <OmitFromQuery>false</OmitFromQuery>
